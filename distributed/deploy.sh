@@ -46,14 +46,13 @@ git checkout $REPO_BRANCH
 
 export DOCKER_NET_NAME=$netname
 export IAM_HOSTNAME="iam.local.io"
+
 sh docker/selenium-grid/selenium_grid.sh start
 
 cd $workdir
 set +e
 
 ## Waiting for IAM
-IAM_HOST=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' iam`
-
 start_ts=$(date +%s)
 timeout=300
 sleeped=0
@@ -68,6 +67,12 @@ while true; do
     fi
     echo "Waiting for IAM..."
     sleep 5
+    
+    sleeped=$((sleeped+5))
+    if [ $sleeped -ge $timeout  ]; then
+    	echo "Timeout!"
+    	exit 1
+	fi
 done
 
 
