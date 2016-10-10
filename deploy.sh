@@ -4,7 +4,7 @@ set -x
 
 TESTSUITE_REPO="${TESTSUITE_REPO:-https://github.com/indigo-iam/iam-robot-testsuite.git}"
 REPO_BRANCH="${REPO_BRANCH:-master}"
-BROWSER="${BROWSER:-master}"
+BROWSER="${BROWSER:-firefox}"
 
 netname="iam_default"
 container_name=iam-ts-$$
@@ -25,12 +25,24 @@ fi
 
 ## Bring on IAM
 set -e
+
+mkdir scratch/
+cd scratch/
+
 git clone https://github.com/indigo-iam/iam.git
 cd iam
 git checkout $REPO_BRANCH
 
 mvn clean install
-set +e
+
+filesdir=$workdir/iam/iam-be/files/
+mkdir -p $filesdir
+
+cp iam-login-service/target/iam-login-service.war $filesdir
+cp docker/saml-idp/idp/shibboleth-idp/metadata/idp-metadata.xml $filesdir
+
+cd $workdir/iam
+
 docker-compose rm -f
 docker-compose up --build -d
 
@@ -40,7 +52,6 @@ IAM_HOST=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddre
 
 
 ## Bring on Selenium Grid
-set -e
 git clone $TESTSUITE_REPO
 cd iam-robot-testsuite
 git checkout $REPO_BRANCH
@@ -91,7 +102,7 @@ docker run --net $DOCKER_NET_NAME \
 	-e TESTSUITE_BRANCH=$REPO_BRANCH \
 	-e IAM_BASE_URL=https://iam.local.io \
 	-e REMOTE_URL=http://selenium-hub:4444/wd/hub \
-	-e BROWSER=$BROWSER
+	-e BROWSER=$BROWSER \
 	italiangrid/iam-robot-testsuite
 
 
