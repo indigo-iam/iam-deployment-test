@@ -4,6 +4,7 @@ set -x
 
 TESTSUITE_REPO="${TESTSUITE_REPO:-https://github.com/indigo-iam/iam-robot-testsuite.git}"
 REPO_BRANCH="${REPO_BRANCH:-master}"
+BROWSER="${BROWSER:-master}"
 
 netname="iam_default"
 container_name=iam-ts-$$
@@ -90,6 +91,7 @@ docker run --net $DOCKER_NET_NAME \
 	-e TESTSUITE_BRANCH=$REPO_BRANCH \
 	-e IAM_BASE_URL=https://iam.local.io \
 	-e REMOTE_URL=http://selenium-hub:4444/wd/hub \
+	-e BROWSER=$BROWSER
 	italiangrid/iam-robot-testsuite
 
 
