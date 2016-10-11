@@ -8,6 +8,7 @@ BROWSER="${BROWSER:-firefox}"
 
 netname="iam_default"
 container_name=iam-ts
+builder_name=iam-builder
 workdir=$PWD
 
 function cleanup(){
@@ -16,6 +17,7 @@ function cleanup(){
 	echo "Caught error! Cleanup..."
 	
 	cd $workdir
+	docker rm $builder_name
 	docker-compose -f iam/docker-compose.yml stop
 	docker-compose -f iam/docker-compose.yml rm -f
 	sh iam-robot-testsuite/docker/selenium-grid/selenium_grid.sh stop
@@ -39,26 +41,19 @@ if [ -z "$id" ]; then
 fi
 
 
-## Bring on IAM
-
-mkdir scratch/
-cd scratch/
-
-git clone https://github.com/indigo-iam/iam.git
-cd iam/
-git checkout $REPO_BRANCH
-
-cd iam-persistence/
-mvn clean install
-
-cd ..
-mvn clean package
+## Compile and bring on IAM
+cd maven/
+sh build-image.sh
+docker run --name=$builder_name \
+	-e REPO=https://github.com/indigo-iam/iam.git \
+	-e REPO_BRANCH=$REPO_BRANCH \
+	italiangrid/iam-builder
 
 filesdir=$workdir/iam/iam-be/files/
 mkdir -p $filesdir
 
-cp iam-login-service/target/iam-login-service.war $filesdir
-cp docker/saml-idp/idp/shibboleth-idp/metadata/idp-metadata.xml $filesdir
+docker cp $builder_name:/iam/iam-login-service/target/iam-login-service.war $filesdir
+docker cp $builder_name:/iam/docker/saml-idp/idp/shibboleth-idp/metadata/idp-metadata.xml $filesdir
 
 cd $workdir/iam
 
