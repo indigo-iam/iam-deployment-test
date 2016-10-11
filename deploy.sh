@@ -78,32 +78,6 @@ sh docker/selenium-grid/selenium_grid.sh start
 cd $workdir
 
 
-## Waiting for IAM
-start_ts=$(date +%s)
-timeout=300
-sleeped=0
-
-set +e
-while true; do
-    (echo > /dev/tcp/$iam_ip/443) >/dev/null 2>&1
-    result=$?
-    if [[ $result -eq 0 ]]; then
-        end_ts=$(date +%s)
-        echo "IAM is available after $((end_ts - start_ts)) seconds"
-        break
-    fi
-    echo "Waiting for IAM..."
-    sleep 5
-    
-    sleeped=$((sleeped+5))
-    if [ $sleeped -ge $timeout  ]; then
-    	echo "Timeout!"
-    	exit 1
-	fi
-done
-set -e
-
-
 ## Run testsuite
 cd iam-robot-testsuite/docker
 ./build-image.sh
@@ -112,6 +86,7 @@ cd $workdir
 
 docker run --net $DOCKER_NET_NAME \
 	--name=$container_name \
+	--add-host $IAM_HOSTNAME:$iam_ip \
 	-e TESTSUITE_REPO=$TESTSUITE_REPO \
 	-e TESTSUITE_BRANCH=$REPO_BRANCH \
 	-e IAM_BASE_URL=https://iam.local.io \
