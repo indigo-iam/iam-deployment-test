@@ -1,14 +1,30 @@
 #!/bin/bash
 
-set -x
+set -xe
 
 TESTSUITE_REPO="${TESTSUITE_REPO:-https://github.com/indigo-iam/iam-robot-testsuite.git}"
 REPO_BRANCH="${REPO_BRANCH:-master}"
 BROWSER="${BROWSER:-firefox}"
 
 netname="iam_default"
-container_name=iam-ts-$$
+container_name=iam-ts
 workdir=$PWD
+
+function cleanup(){
+	retcod=$?
+	
+	echo "Caught error! Cleanup..."
+	
+	cd $workdir
+	docker-compose -f iam/docker-compose.yml stop
+	docker-compose -f iam/docker-compose.yml rm -f
+	sh iam-robot-testsuite/docker/selenium-grid/selenium_grid.sh stop
+	docker rm $container_name
+	
+	exit $retcod
+}
+
+trap cleanup ERR SIGINT SIGTERM SIGABRT
 
 
 ## Create more entropy
@@ -24,16 +40,19 @@ fi
 
 
 ## Bring on IAM
-set -e
 
 mkdir scratch/
 cd scratch/
 
 git clone https://github.com/indigo-iam/iam.git
-cd iam
+cd iam/
 git checkout $REPO_BRANCH
 
+cd iam-persistence/
 mvn clean install
+
+cd ..
+mvn clean package
 
 filesdir=$workdir/iam/iam-be/files/
 mkdir -p $filesdir
@@ -48,7 +67,7 @@ docker-compose up --build -d
 
 cd $workdir
 
-IAM_HOST=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' iam`
+iam_ip=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' iam`
 
 
 ## Bring on Selenium Grid
@@ -62,15 +81,16 @@ export IAM_HOSTNAME="iam.local.io"
 sh docker/selenium-grid/selenium_grid.sh start
 
 cd $workdir
-set +e
+
 
 ## Waiting for IAM
 start_ts=$(date +%s)
 timeout=300
 sleeped=0
 
+set +e
 while true; do
-    (echo > /dev/tcp/$IAM_HOST/443) >/dev/null 2>&1
+    (echo > /dev/tcp/$iam_ip/443) >/dev/null 2>&1
     result=$?
     if [[ $result -eq 0 ]]; then
         end_ts=$(date +%s)
@@ -86,6 +106,7 @@ while true; do
     	exit 1
 	fi
 done
+set -e
 
 
 ## Run testsuite
@@ -93,8 +114,6 @@ cd iam-robot-testsuite/docker
 ./build-image.sh
 
 cd $workdir
-
-docker rm $container_name
 
 docker run --net $DOCKER_NET_NAME \
 	--name=$container_name \
@@ -117,11 +136,4 @@ docker cp $container_name:/home/tester/iam-robot-testsuite/reports $reportdir
 
 
 ## Stop services and cleanup
-cd $workdir
-
-docker-compose -f iam/docker-compose.yml stop
-docker-compose -f iam/docker-compose.yml rm -f
-
-sh iam-robot-testsuite/docker/selenium-grid/selenium_grid.sh stop
-
-docker rm $container_name
+cleanup
