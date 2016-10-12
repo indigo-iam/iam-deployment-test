@@ -26,7 +26,7 @@ function cleanup(){
 	exit $retcod
 }
 
-trap cleanup ERR SIGINT SIGTERM SIGABRT
+trap cleanup EXIT SIGINT SIGTERM SIGABRT
 
 
 ## Create more entropy
@@ -84,6 +84,7 @@ cd iam-robot-testsuite/docker
 
 cd $workdir
 
+set +e
 docker run --net $DOCKER_NET_NAME \
 	--name=$container_name \
 	--add-host $IAM_HOSTNAME:$iam_ip \
@@ -93,6 +94,7 @@ docker run --net $DOCKER_NET_NAME \
 	-e REMOTE_URL=http://selenium-hub:4444/wd/hub \
 	-e BROWSER=$BROWSER \
 	italiangrid/iam-robot-testsuite
+set -e
 
 
 ## Copy reports
