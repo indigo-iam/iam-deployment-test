@@ -8,22 +8,22 @@ BROWSER="${BROWSER:-firefox}"
 TIMEOUT="${TIMEOUT:-10}"
 
 netname="iam_default"
-container_name=iam-ts
+ts_name=iam-ts
 builder_name=iam-builder
 workdir=$PWD
 
 function cleanup(){
 	retcod=$?
-	
-	echo "Caught error! Cleanup..."
-	
-	cd $workdir
-	docker rm $builder_name
-	docker-compose -f iam/docker-compose.yml stop
-	docker-compose -f iam/docker-compose.yml rm -f
-	sh iam-robot-testsuite/docker/selenium-grid/selenium_grid.sh stop
-	docker rm $container_name
-	
+	if [ $retcod != 0 ]; then
+		echo "Caught error! Cleanup..."
+		
+		cd $workdir
+		docker rm $builder_name
+		docker-compose -f iam/docker-compose.yml stop
+		docker-compose -f iam/docker-compose.yml rm -f
+		sh iam-robot-testsuite/docker/selenium-grid/selenium_grid.sh stop
+		docker rm $ts_name
+	fi
 	exit $retcod
 }
 
@@ -87,7 +87,7 @@ cd $workdir
 
 set +e
 docker run --net $DOCKER_NET_NAME \
-	--name=$container_name \
+	--name=$ts_name \
 	--add-host $IAM_HOSTNAME:$iam_ip \
 	-e TESTSUITE_REPO=$TESTSUITE_REPO \
 	-e TESTSUITE_BRANCH=$REPO_BRANCH \
@@ -106,8 +106,12 @@ reportdir=$workdir/reports
 
 mkdir $reportdir
 
-docker cp $container_name:/home/tester/iam-robot-testsuite/reports $reportdir
+docker cp $ts_name:/home/tester/iam-robot-testsuite/reports $reportdir
 
 
 ## Stop services and cleanup
-cleanup
+docker rm $builder_name
+docker-compose -f iam/docker-compose.yml stop
+docker-compose -f iam/docker-compose.yml rm -f
+sh iam-robot-testsuite/docker/selenium-grid/selenium_grid.sh stop
+docker rm $ts_name
