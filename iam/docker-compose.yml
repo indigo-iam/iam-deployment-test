@@ -21,6 +21,7 @@ services:
 
   iam-be:
     container_name: iam-be
+    image: ${DOCKER_REGISTRY_HOST}/italiangrid/iam-login-service:${IMAGE_TAG}
 
     build:
       context: ./iam-be
