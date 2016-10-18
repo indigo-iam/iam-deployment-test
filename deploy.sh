@@ -114,7 +114,6 @@ docker run --net $DOCKER_NET_NAME \
 	-e BROWSER=$BROWSER \
 	-e TIMEOUT=$TIMEOUT \
 	$DOCKER_REGISTRY_HOST/italiangrid/iam-robot-testsuite:latest
-set -e
 
 
 ## Copy reports
