@@ -125,6 +125,7 @@ mkdir $reportdir
 
 docker cp $ts_name:/home/tester/iam-robot-testsuite/reports $reportdir
 
+docker-compose -f iam/docker-compose.yml logs > $reportdir/iam.log
 
 ## Stop services and cleanup
 docker-compose -f iam/docker-compose.yml stop
