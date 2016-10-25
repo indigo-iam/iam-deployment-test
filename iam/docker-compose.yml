@@ -25,6 +25,9 @@ services:
 
     build:
       context: ./iam-be
+    
+    depends_on:
+      - db
 
     environment:
       IAM_JAVA_OPTS: -Xdebug -Xrunjdwp:server=y,transport=dt_socket,suspend=n,address=1044 -Dspring.profiles.active=mysql-test
