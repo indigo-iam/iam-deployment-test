@@ -28,7 +28,7 @@ services:
     
     depends_on:
       - db
-
+    
     environment:
       IAM_JAVA_OPTS: -Xdebug -Xrunjdwp:server=y,transport=dt_socket,suspend=n,address=1044 -Dspring.profiles.active=mysql-test
       IAM_BASE_URL: https://iam.local.io
@@ -50,6 +50,10 @@ services:
       IAM_SAML_ENTITY_ID: urn:iam:iam-devel
       IAM_NOTIFICATION_DISABLE: "true"
 
+      WAIT_HOST: db
+      WAIT_PORT: 3306
+      WAIT_TIMEOUT: 60
+      
     ports:
       - "1044:1044"
 
