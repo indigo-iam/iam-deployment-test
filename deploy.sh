@@ -125,7 +125,9 @@ mkdir $reportdir
 
 docker cp $ts_name:/home/tester/iam-robot-testsuite/reports $reportdir
 docker cp iam:/var/log/nginx/iam_local_io.access.log $reportdir
-docker-compose -f iam/docker-compose.yml logs > $reportdir/iam.log
+docker-compose -f iam/docker-compose.yml logs --no-color iam > $reportdir/iam.log
+docker-compose -f iam/docker-compose.yml logs --no-color iam-be > $reportdir/iam-be.log
+docker-compose -f iam/docker-compose.yml logs --no-color db > $reportdir/db.log
 
 ## Stop services and cleanup
 docker-compose -f iam/docker-compose.yml stop
