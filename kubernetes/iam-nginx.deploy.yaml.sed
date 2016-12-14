@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: iam-$BRANCH-$BROWSER
+  name: iam-nginx-$BRANCH-$BROWSER
   labels:
     app: iam-$BRANCH-$BROWSER
 spec:
@@ -36,11 +36,11 @@ spec:
           name: https
         env:
         - name: NGINX_HOST
-          value: iam-$BRANCH-$BROWSER.default.svc.cluster.local.io
+          value: iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local.io
         - name: NGINX_PORT
           value: "443"
         - name: NGINX_SERVER_NAME
-          value: iam-$BRANCH-$BROWSER.default.svc.cluster.local.io
+          value: iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local.io
         - name: NGINX_PROXY_PASS
           value: http://iam-login-service-$BRANCH-$BROWSER:8080
       imagePullSecrets:

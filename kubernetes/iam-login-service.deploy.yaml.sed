@@ -45,9 +45,9 @@ spec:
         - name: IAM_JAVA_OPTS
           value: -Dspring.profiles.active=mysql-test
         - name: IAM_BASE_URL
-          value: https://iam-$BRANCH-$BROWSER.default.svc.cluster.local
+          value: https://iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local
         - name: IAM_ISSUER
-          value: https://iam-$BRANCH-$BROWSER.default.svc.cluster.local
+          value: https://iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local
         - name: IAM_USE_FORWARDED_HEADERS
           value: "true"
         - name: IAM_DB_HOST
@@ -57,7 +57,7 @@ spec:
         - name: IAM_DB_PASSWORD
           value: pwd
         - name: IAM_GOOGLE_CLIENT_REDIRECT_URIS
-          value: https://iam-$BRANCH-$BROWSER.default.svc.cluster.local/openid_connect_login
+          value: https://iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local/openid_connect_login
         - name: IAM_SAML_IDP_METADATA
           value: file:///srv/indigo-iam/saml-idp/idp/shibboleth-idp/metadata/idp-metadata.xml
         - name: IAM_SAML_ENTITY_ID
