@@ -47,7 +47,7 @@ spec:
     - name: BROWSER
       value: $BROWSER
     - name: TIMEOUT
-      value: $TIMEOUT
+      value: '$TIMEOUT'
     - name: OUTPUT_REPORTS
       value: $OUTPUT_REPORTS
   imagePullSecrets:
