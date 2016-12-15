@@ -37,7 +37,7 @@ def deployment_test(branch, browser){
         unstash "source"
         dir('kubernetes'){
           sh "./generate_deploy_templates.sh"
-          sh "IAM_BASE_URL=https://iam-${BRANCH}-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
+          sh "IAM_BASE_URL=https://iam-nginx-${BRANCH}-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
         }
         sh "kubectl create -f kubernetes/mysql.deploy.yaml"
         sh "sleep 10"
