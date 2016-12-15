@@ -1,4 +1,4 @@
-#!groovy​
+#!groovy
 
 stage('build images'){ 
   
@@ -6,7 +6,10 @@ stage('build images'){
 }
 
 stage('deployment test'){
-  git 'https://github.com/marcocaberletti/iam-deployment-test.git'
+  node('generic'){
+    git 'https://github.com/marcocaberletti/iam-deployment-test.git'
+    stash name: "source", include: "./"
+  }
   
   parallel (
       "master-chrome":   { deployment_test('master', 'chrome') },
@@ -31,6 +34,7 @@ def deployment_test(branch, browser){
     node('kubectl'){
       try{
         sh "mkdir -p ${OUTPUT_REPORTS}"
+        unstash "source"
         dir('kubernetes'){
           sh "./generate_deploy_templates.sh"
           sh "IAM_BASE_URL=https://iam-${BRANCH}-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
