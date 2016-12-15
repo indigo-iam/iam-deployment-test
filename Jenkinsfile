@@ -60,7 +60,7 @@ def deployment_test(branch, browser){
           reportFileName: 'report.html',
           unstableThreshold: 90])
       }finally{
-        cleanup(branch, browser)
+        cleanup("${branch}", "${browser}", "${pod_name}")
       }
     }
   }
