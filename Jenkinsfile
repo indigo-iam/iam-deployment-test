@@ -1,8 +1,27 @@
 #!groovy
 
-stage('build images'){ 
-  
-  
+stage('build images'){
+  parallel(
+    "iam-nginx-image": {
+      node('docker'){
+        git branch: 'master', url: 'https://github.com/marcocaberletti/iam-deployment-test.git'
+        dir('iam/nginx'){
+          sh "./build-image.sh"
+          sh "./push-image.sh"
+        }
+      }
+    },
+    
+    "iam-ts-image": {
+      node('docker'){
+        git 'https://github.com/marcocaberletti/iam-robot-testsuite.git'
+        dir('docker'){
+          sh './build-image.sh'
+          sh './push-image.sh'
+        }
+      }
+    },
+    )
 }
 
 stage('deployment test'){
