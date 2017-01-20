@@ -8,6 +8,6 @@ if [ -z ${BRANCH+x} ] || [ -z ${BROWSER+x} ] || [ -z ${DOCKER_REGISTRY_HOST+x} ]
 fi
 
 for file in *.sed; do
-	newfile=`basename -s .sed $file`
-	cat $file | sed "s/\$BRANCH/$BRANCH/g;s/\$BROWSER/$BROWSER/g;s/\$DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_HOST/g" > $newfile
+	newfile=`basename -s .sed ${file}`
+	envsubst < ${file} > ${newfile}
 done
