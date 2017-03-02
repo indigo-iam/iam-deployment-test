@@ -1,5 +1,8 @@
 #!/bin/bash
 
-BRANCH=${BRANCH:-}
+set -xe
 
-docker build --no-cache -t italiangrid/iam-login-service:$BRANCH .
+IMAGE_NAME=${IMAGE_NAME:"italiangrid/iam-login-service"}
+TAG=${TAG:-}
+
+docker build --no-cache -t ${IMAGE_NAME}:${TAG} .

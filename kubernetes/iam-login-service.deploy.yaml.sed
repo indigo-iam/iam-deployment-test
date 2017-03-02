@@ -31,7 +31,7 @@ spec:
         role: worker
       containers:
       - name: iam-login-service-$BRANCH-$BROWSER
-        image: $DOCKER_REGISTRY_HOST/italiangrid/iam-login-service:$BRANCH
+        image: $DOCKER_REGISTRY_HOST/$IAM_IMAGE
         ports:
         - containerPort: 8080
           name: iam

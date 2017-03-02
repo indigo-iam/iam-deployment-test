@@ -3,10 +3,11 @@
 set -xe
 
 DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-"cloud-vm128.cloud.cnaf.infn.it"}
-BRANCH=${BRANCH:-}
+IMAGE_NAME=${IMAGE_NAME:"italiangrid/iam-login-service"}
+TAG=${TAG:-}
 
-image_name=italiangrid/iam-login-service:$BRANCH
-dest=${DOCKER_REGISTRY_HOST}/$image_name
+image=${IMAGE_NAME}:${TAG}
+dest=${DOCKER_REGISTRY_HOST}/$image
 	
-docker tag $image_name $dest
+docker tag $image $dest
 docker push $dest

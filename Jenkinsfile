@@ -1,22 +1,33 @@
 #!groovy
+// name: iam-deployment-test
 
-stage('deployment test'){
+properties([
+  buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')),
+  parameters([
+    choice(name: 'BROWSER', choices: 'chrome\nfirefox', description: ''),
+    choice(name: 'BRANCH',  choices: 'master\ndevelop', description: ''),
+    string(name: 'IAM_IMAGE',  defaultValue: 'cloud-vm181.cloud.cnaf.infn.it/italiangrid/iam-login-service:develop', description: '')
+  ]),
+])
+
+
+
+stage "Prepare"
   node('generic'){
     git 'https://github.com/marcocaberletti/iam-deployment-test.git'
     stash name: "source", include: "./*"
   }
   
-  parallel (
-      "develop-chrome":  { deployment_test('develop', 'chrome') },
-      )
-}
+stage "Test"
+  node('kubectl') {
+    deployment_test("${params.BRANCH}", "${params.BROWSER}", "${params.IAM_IMAGE}")
+  }
 
-stage('process outputs'){
-    
+stage "Process outputs"
   node('generic') {
-    unstash "develop-chrome"
+    unstash "outputs"
     archiveArtifacts "**"
-
+  
     step([$class: 'RobotPublisher',
       disableArchiveOutput: false,
       logFileName: 'log.html',
@@ -27,10 +38,10 @@ stage('process outputs'){
       reportFileName: 'report.html',
       unstableThreshold: 90]);
   }
-}
 
 
-def deployment_test(branch, browser){
+
+def deployment_test(branch, browser, iam_image) {
 
   def pod_name = "iam-ts-${UUID.randomUUID().toString()}"
   def report_dir = "/srv/scratch/${pod_name}/reports"
@@ -38,58 +49,58 @@ def deployment_test(branch, browser){
   withEnv([
     "BRANCH=${branch}",
     "BROWSER=${browser}",
+    "IAM_IMAGE=${iam_image}",
     "POD_NAME=${pod_name}",
     "OUTPUT_REPORTS=${report_dir}"
   ]){
-    node('kubectl'){
-      try{
-        sh "mkdir -p ${OUTPUT_REPORTS}"
-        unstash "source"
-        dir('kubernetes'){
-          sh "./generate_deploy_templates.sh"
-          sh "IAM_BASE_URL=https://iam-nginx-${BRANCH}-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
-        }
-        
-        sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
-        sh "while ( [ '1' != `kubectl get deploy iam-db-${BRANCH}-${BROWSER} -o jsonpath='{.status.availableReplicas}'` ] ); do echo 'Waiting db...'; sleep 5; done"
-        
-        sh "kubectl apply -f kubernetes/iam-login-service.deploy.yaml && sleep 30"
-        sh "while ( [ '1' != `kubectl get deploy iam-login-service-${BRANCH}-${BROWSER} -o jsonpath='{.status.availableReplicas}'` ] ); do echo 'Waiting login-service...'; sleep 5; done"
-        
-        sh "kubectl apply -f kubernetes/iam-nginx.deploy.yaml"
-        sh "while ( [ '1' != `kubectl get deploy iam-nginx-${BRANCH}-${BROWSER} -o jsonpath='{.status.availableReplicas}'` ] ); do echo 'Waiting nginx front-end...'; sleep 5; done"
-        
-        sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
-        sh "while ( [ 'Running' != `kubectl get pod $POD_NAME -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
-        
-        sh "kubectl logs -f $POD_NAME"
-        
-        dir("${report_dir}"){
-            stash name: "${branch}-${browser}", include: "./*"
-        }
-        
-        currentBuild.result = 'SUCCESS'
-
-      }catch(error){
-        currentBuild.result = 'FAILURE'
-      }finally{
-        cleanup("${branch}", "${browser}", "${pod_name}")
+    try{
+      sh "mkdir -p ${OUTPUT_REPORTS}"
+      unstash "source"
+      dir('kubernetes'){
+        sh "./generate_deploy_templates.sh"
+        sh "IAM_BASE_URL=https://iam-nginx-${BRANCH}-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
+        stash name: "kube-templates", include: "./*.yaml"
       }
+      
+      sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
+      wait_kube_deploy("iam-db-${branch}-${browser}")
+      
+      sh "kubectl apply -f kubernetes/iam-login-service.deploy.yaml"
+      wait_kube_deploy("iam-login-service-${branch}-${browser}")
+      
+      sh "kubectl apply -f kubernetes/iam-nginx.deploy.yaml"
+      wait_kube_deploy("iam-nginx-${branch}-${browser}")
+      
+      sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
+      sh "while ( [ 'Running' != `kubectl get pod $POD_NAME -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
+      
+      sh "kubectl logs -f $POD_NAME"
+      
+      dir("${report_dir}"){
+          stash name: "outputs", include: "./*"
+      }
+      
+      currentBuild.result = 'SUCCESS'
+
+    }catch(error){
+      currentBuild.result = 'FAILURE'
+    }finally{
+      cleanup()
     }
   }
 }
 
-def cleanup(branch, browser, tspod){
+def wait_kube_deploy(name) {
+  withEnv(["DEPLOY_NAME=${name}"]){
+    timeout(time: 5, unit: 'MINUTES') {  sh "kubectl rollout status deploy/${DEPLOY_NAME} | grep -q 'successfully rolled out'" }
+  }
+}
+
+def cleanup() {
   try{
-    withEnv([
-      "BRANCH=${branch}",
-      "BROWSER=${browser}",
-      "POD_NAME=${tspod}"
-    ]){
-      sh "kubectl delete svc,deploy iam-nginx-${BRANCH}-${BROWSER}"
-      sh "kubectl delete svc,deploy iam-login-service-${BRANCH}-${BROWSER}"
-      sh "kubectl delete svc,deploy iam-db-${BRANCH}-${BROWSER}"
-      sh "kubectl delete pod ${POD_NAME}"
+    dir('templates') {
+      unstash "kube-templates"
+      sh "kubectl delete -f ."
     }
   }catch(error){}
 }
