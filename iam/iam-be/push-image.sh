@@ -3,7 +3,7 @@
 set -xe
 
 DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-"cloud-vm128.cloud.cnaf.infn.it"}
-IMAGE_NAME=${IMAGE_NAME:"italiangrid/iam-login-service"}
+IMAGE_NAME=${IMAGE_NAME:-"italiangrid/iam-login-service"}
 TAG=${TAG:-}
 
 image=${IMAGE_NAME}:${TAG}
