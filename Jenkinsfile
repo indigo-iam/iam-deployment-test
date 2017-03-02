@@ -3,6 +3,7 @@
 
 properties([
   buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')),
+  pipelineTriggers([cron('@daily')]),
   parameters([
     choice(name: 'BROWSER', choices: 'chrome\nfirefox', description: ''),
     choice(name: 'BRANCH',  choices: 'master\ndevelop', description: ''),
@@ -12,18 +13,20 @@ properties([
 
 
 
-stage "Prepare"
+stage("Prepare"){
   node('generic'){
     git 'https://github.com/marcocaberletti/iam-deployment-test.git'
     stash name: "source", include: "./*"
   }
-  
-stage "Test"
+}
+
+stage("Test"){
   node('kubectl') {
     deployment_test("${params.BRANCH}", "${params.BROWSER}", "${params.IAM_IMAGE}")
   }
+}
 
-stage "Process outputs"
+stage("Process outputs"){
   node('generic') {
     unstash "outputs"
     archiveArtifacts "**"
@@ -38,7 +41,7 @@ stage "Process outputs"
       reportFileName: 'report.html',
       unstableThreshold: 90]);
   }
-
+}
 
 
 def deployment_test(branch, browser, iam_image) {
