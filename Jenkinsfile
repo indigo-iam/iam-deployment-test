@@ -7,7 +7,7 @@ properties([
   parameters([
     choice(name: 'BROWSER', choices: 'chrome\nfirefox', description: ''),
     choice(name: 'BRANCH',  choices: 'master\ndevelop', description: ''),
-    string(name: 'IAM_IMAGE',  defaultValue: 'cloud-vm181.cloud.cnaf.infn.it/italiangrid/iam-login-service:develop', description: '')
+    string(name: 'IAM_IMAGE',  defaultValue: 'italiangrid/iam-login-service:develop', description: '')
   ]),
 ])
 
