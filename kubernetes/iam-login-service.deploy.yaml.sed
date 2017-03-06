@@ -35,6 +35,22 @@ spec:
         ports:
         - containerPort: 8080
           name: iam
+        readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 90
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 90
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 1500Mi
         env:
         - name: WAIT_HOST
           value: iam-db-$BRANCH-$BROWSER
