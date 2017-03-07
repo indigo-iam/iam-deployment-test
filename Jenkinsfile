@@ -7,7 +7,8 @@ properties([
   parameters([
     choice(name: 'BROWSER', choices: 'chrome\nfirefox', description: ''),
     choice(name: 'BRANCH',  choices: 'master\ndevelop', description: ''),
-    string(name: 'IAM_IMAGE',  defaultValue: 'italiangrid/iam-login-service:develop', description: '')
+    string(name: 'IAM_IMAGE',       defaultValue: 'italiangrid/iam-login-service:develop', description: 'IAM docker image name'),
+    string(name: 'TESTSUITE_OPTS',  defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
   ]),
 ])
 
@@ -54,7 +55,8 @@ def deployment_test(branch, browser, iam_image) {
     "BROWSER=${browser}",
     "IAM_IMAGE=${iam_image}",
     "POD_NAME=${pod_name}",
-    "OUTPUT_REPORTS=${report_dir}"
+    "OUTPUT_REPORTS=${report_dir}",
+    "TESTSUITE_OPTS=${params.TESTSUITE_OPTS}"
   ]){
     try{
       sh "mkdir -p ${OUTPUT_REPORTS}"
