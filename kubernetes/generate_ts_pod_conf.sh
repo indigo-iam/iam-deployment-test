@@ -15,6 +15,13 @@ BROWSER=${BROWSER:-"firefox"}
 TIMEOUT=${TIMEOUT:-10}
 POD_NAME=${POD_NAME:-"iam-testsuite"}
 OUTPUT_REPORTS=${OUTPUT_REPORTS:-"reports/"}
+TESTSUITE_OPTS="${TESTSUITE_OPTS:-}"
+ADMIN_USER="${ADMIN_USER:-admin}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-password}"
+CLIENT_ID="${CLIENT_ID:-client-cred}"
+CLIENT_SECRET="${CLIENT_SECRET:-secret}"
+TOKEN_EXCHANGE_CLIENT_ID="${TOKEN_EXCHANGE_CLIENT_ID:-token-exchange-actor}"
+TOKEN_EXCHANGE_CLIENT_SECRET="${TOKEN_EXCHANGE_CLIENT_SECRET:-secret}"
 
 echo "
 apiVersion: v1
@@ -50,6 +57,20 @@ spec:
       value: '$TIMEOUT'
     - name: OUTPUT_REPORTS
       value: $OUTPUT_REPORTS
+    - name: TESTSUITE_OPTS
+      value: '${TESTSUITE_OPTS}'
+    - name: ADMIN_USER
+      value: ${ADMIN_USER}
+    - name: ADMIN_PASSWORD
+      value: ${ADMIN_PASSWORD}
+    - name: CLIENT_ID
+      value: ${CLIENT_ID}
+    - name: CLIENT_SECRET
+      value: ${CLIENT_SECRET}
+    - name: TOKEN_EXCHANGE_CLIENT_ID
+      value: ${TOKEN_EXCHANGE_CLIENT_ID}
+    - name: TOKEN_EXCHANGE_CLIENT_SECRET
+      value: ${TOKEN_EXCHANGE_CLIENT_SECRET}
   imagePullSecrets:
   - name: cloud-vm181
 " > iam-testsuite.pod.yaml
