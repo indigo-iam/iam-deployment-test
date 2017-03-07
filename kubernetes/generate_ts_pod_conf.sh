@@ -7,6 +7,7 @@ if [ -z ${IAM_BASE_URL+x} ]; then
 	exit 1
 fi
 
+IAM_TEST_CLIENT_URL=${IAM_TEST_CLIENT_URL:-"$IAM_BASE_URL/iam-test-client"}
 DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-"cloud-vm128.cloud.cnaf.infn.it"}
 REMOTE_URL=${REMOTE_URL:-"http://selenium-hub.default.svc.cluster.local:4444/wd/hub"}
 TESTSUITE_REPO=${TESTSUITE_REPO:-"https://github.com/indigo-iam/iam-robot-testsuite.git"}
@@ -16,18 +17,14 @@ TIMEOUT=${TIMEOUT:-10}
 POD_NAME=${POD_NAME:-"iam-testsuite"}
 OUTPUT_REPORTS=${OUTPUT_REPORTS:-"reports/"}
 TESTSUITE_OPTS="${TESTSUITE_OPTS:-}"
-ADMIN_USER="${ADMIN_USER:-admin}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-password}"
-CLIENT_ID="${CLIENT_ID:-client-cred}"
-CLIENT_SECRET="${CLIENT_SECRET:-secret}"
-TOKEN_EXCHANGE_CLIENT_ID="${TOKEN_EXCHANGE_CLIENT_ID:-token-exchange-actor}"
-TOKEN_EXCHANGE_CLIENT_SECRET="${TOKEN_EXCHANGE_CLIENT_SECRET:-secret}"
+NAMESPACE=${NAMESPACE:-"default"}
 
 echo "
 apiVersion: v1
 kind: Pod
 metadata:
   name: $POD_NAME
+  namespace: $NAMESPACE
 spec:
   nodeSelector:
     role: worker
@@ -45,6 +42,8 @@ spec:
     env:
     - name: IAM_BASE_URL
       value: $IAM_BASE_URL
+    - name: IAM_TEST_CLIENT_URL
+      value: $IAM_TEST_CLIENT_URL
     - name: REMOTE_URL
       value: $REMOTE_URL
     - name: TESTSUITE_REPO
@@ -58,19 +57,37 @@ spec:
     - name: OUTPUT_REPORTS
       value: $OUTPUT_REPORTS
     - name: TESTSUITE_OPTS
-      value: '${TESTSUITE_OPTS}'
+      value: '$TESTSUITE_OPTS'
     - name: ADMIN_USER
-      value: ${ADMIN_USER}
+      valueFrom:
+        configMapKeyRef:
+          name: iam-ts-config
+          key: admin_user
     - name: ADMIN_PASSWORD
-      value: ${ADMIN_PASSWORD}
+      valueFrom:
+        configMapKeyRef:
+          name: iam-ts-config
+          key: admin_password
     - name: CLIENT_ID
-      value: ${CLIENT_ID}
+      valueFrom:
+        configMapKeyRef:
+          name: iam-ts-config
+          key: client_id
     - name: CLIENT_SECRET
-      value: ${CLIENT_SECRET}
+      valueFrom:
+        configMapKeyRef:
+          name: iam-ts-config
+          key: client_secret
     - name: TOKEN_EXCHANGE_CLIENT_ID
-      value: ${TOKEN_EXCHANGE_CLIENT_ID}
+      valueFrom:
+        configMapKeyRef:
+          name: iam-ts-config
+          key: token_exchange_client_id
     - name: TOKEN_EXCHANGE_CLIENT_SECRET
-      value: ${TOKEN_EXCHANGE_CLIENT_SECRET}
+      valueFrom:
+        configMapKeyRef:
+          name: iam-ts-config
+          key: token_exchange_client_secret
   imagePullSecrets:
   - name: cloud-vm181
 " > iam-testsuite.pod.yaml

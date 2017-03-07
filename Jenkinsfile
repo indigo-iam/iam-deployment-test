@@ -76,6 +76,8 @@ def deployment_test(branch, browser, iam_image) {
       sh "kubectl apply -f kubernetes/iam-nginx.deploy.yaml"
       wait_kube_deploy("iam-nginx-${branch}-${browser}")
       
+      sh "kubectl apply -f kubernetes/deploy-params.cm.yaml"
+      
       sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
       sh "while ( [ 'Running' != `kubectl get pod $POD_NAME -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
       
