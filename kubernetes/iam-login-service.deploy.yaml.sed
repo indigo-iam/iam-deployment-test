@@ -29,6 +29,9 @@ spec:
     spec:
       nodeSelector:
         role: worker
+      volumes:
+        secret:
+          secretName: iam-deploy-test-secret
       containers:
       - name: iam-login-service-$BRANCH-$BROWSER
         image: $DOCKER_REGISTRY_HOST/$IAM_IMAGE
@@ -51,6 +54,9 @@ spec:
           requests:
             cpu: 1000m
             memory: 1500Mi
+        volumeMounts:
+        - name: iam-deploy-test-secret
+          mountPath: /srv/indigo-iam/saml-idp/idp/shibboleth-idp/metadata
         env:
         - name: WAIT_HOST
           value: iam-db-$BRANCH-$BROWSER
