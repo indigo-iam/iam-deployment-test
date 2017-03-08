@@ -59,7 +59,7 @@ def deployment_test(branch, browser, iam_image) {
     "POD_NAME=${pod_name}",
     "OUTPUT_REPORTS=${report_dir}",
     "TESTSUITE_REPO=${params.TESTSUITE_REPO}",
-    "TESTSUITE_BRANCH=${params.TESTSUITE_BRANCH}"
+    "TESTSUITE_BRANCH=${params.TESTSUITE_BRANCH}",
     "TESTSUITE_OPTS=${params.TESTSUITE_OPTS}"
   ]){
     try{
