@@ -70,10 +70,10 @@ def deployment_test(branch, browser, iam_image) {
       sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
       wait_kube_deploy("iam-db-${branch}-${browser}")
       
+      sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/iam-login-service.secret.yaml"
+      
       sh "kubectl apply -f kubernetes/iam-login-service.deploy.yaml"
       wait_kube_deploy("iam-login-service-${branch}-${browser}")
-      
-      sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/iam-login-service.secret.yaml"
       
       sh "kubectl apply -f kubernetes/iam-nginx.deploy.yaml"
       wait_kube_deploy("iam-nginx-${branch}-${browser}")
