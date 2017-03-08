@@ -7,8 +7,10 @@ properties([
   parameters([
     choice(name: 'BROWSER', choices: 'chrome\nfirefox', description: ''),
     choice(name: 'BRANCH',  choices: 'master\ndevelop', description: ''),
-    string(name: 'IAM_IMAGE',       defaultValue: 'italiangrid/iam-login-service:develop', description: 'IAM docker image name'),
-    string(name: 'TESTSUITE_OPTS',  defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
+    string(name: 'IAM_IMAGE',        defaultValue: 'italiangrid/iam-login-service:develop', description: 'IAM docker image name'),
+    string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/marcocaberletti/iam-robot-testsuite.git', description: 'Testsuite code repository'),
+    string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository'),
+    string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
   ]),
 ])
 
@@ -56,6 +58,8 @@ def deployment_test(branch, browser, iam_image) {
     "IAM_IMAGE=${iam_image}",
     "POD_NAME=${pod_name}",
     "OUTPUT_REPORTS=${report_dir}",
+    "TESTSUITE_REPO=${params.TESTSUITE_REPO}",
+    "TESTSUITE_BRANCH=${params.TESTSUITE_BRANCH}"
     "TESTSUITE_OPTS=${params.TESTSUITE_OPTS}"
   ]){
     try{
