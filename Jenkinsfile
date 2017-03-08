@@ -5,8 +5,8 @@ properties([
   buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')),
   pipelineTriggers([cron('@daily')]),
   parameters([
-    choice(name: 'BROWSER', choices: 'chrome\nfirefox', description: ''),
-    choice(name: 'BRANCH',  choices: 'master\ndevelop', description: ''),
+    choice(name: 'BROWSER',          choices: 'chrome\nfirefox', description: ''),
+    choice(name: 'BRANCH',           choices: 'master\ndevelop', description: ''),
     string(name: 'IAM_IMAGE',        defaultValue: 'italiangrid/iam-login-service:develop', description: 'IAM docker image name'),
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/marcocaberletti/iam-robot-testsuite.git', description: 'Testsuite code repository'),
     string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository'),
@@ -111,7 +111,7 @@ def cleanup() {
   try{
     dir('templates') {
       unstash "kube-templates"
-      sh "kubectl delete -f ."
+      sh "kubectl delete -f iam-nginx.deploy.yaml -f iam-login-service.deploy.yaml -f mysql.deploy.yaml -f iam-testsuite.pod.yaml"
     }
   }catch(error){}
 }
