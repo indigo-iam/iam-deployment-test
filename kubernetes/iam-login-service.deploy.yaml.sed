@@ -30,6 +30,7 @@ spec:
       nodeSelector:
         role: worker
       volumes:
+      - name: iam-deploy-test-secret
         secret:
           secretName: iam-deploy-test-secret
       containers:
