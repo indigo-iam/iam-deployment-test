@@ -34,6 +34,10 @@ spec:
         ports:
         - containerPort: 443
           name: https
+        resources:
+          requests:
+            cpu: 100m
+            memory: 50Mi
         env:
         - name: NGINX_HOST
           value: iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local.io

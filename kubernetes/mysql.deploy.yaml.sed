@@ -31,10 +31,14 @@ spec:
         role: worker
       containers:
       - name: iam-db
-        image: mysql:5.6
+        image: mariadb:latest
         ports:
         - containerPort: 3306
           name: mysql
+        resources:
+          requests:
+            cpu: 300m
+            memory: 800Mi
         env:
         - name: MYSQL_USER
           value: iam
