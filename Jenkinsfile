@@ -7,7 +7,7 @@ properties([
   parameters([
     choice(name: 'BROWSER',          choices: 'chrome\nfirefox', description: ''),
     choice(name: 'BRANCH',           choices: 'master\ndevelop', description: ''),
-    string(name: 'IAM_IMAGE',        defaultValue: 'italiangrid/iam-login-service:develop', description: 'IAM docker image name'),
+    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:develop', description: 'IAM docker image name'),
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/marcocaberletti/iam-robot-testsuite.git', description: 'Testsuite code repository'),
     string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository'),
     string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
