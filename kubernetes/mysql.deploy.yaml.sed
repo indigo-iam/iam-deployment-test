@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: iam-db-$BRANCH-$BROWSER
+  name: iam-db-$BROWSER
   labels:
-    app: iam-$BRANCH-$BROWSER
+    app: iam-$BROWSER
 spec:
   ports:
   - name: mysql
     port: 3306
   selector:
-    app: iam-$BRANCH-$BROWSER
+    app: iam-$BROWSER
     tier: db
   clusterIP: None
 
@@ -18,13 +18,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: iam-db-$BRANCH-$BROWSER
+  name: iam-db-$BROWSER
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: iam-$BRANCH-$BROWSER
+        app: iam-$BROWSER
         tier: db
     spec:
       nodeSelector:

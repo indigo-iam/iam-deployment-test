@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: iam-nginx-$BRANCH-$BROWSER
+  name: iam-nginx-$BROWSER
   labels:
-    app: iam-$BRANCH-$BROWSER
+    app: iam-$BROWSER
 spec:
   ports: 
   - name: https
     port: 443
   selector:
-    app: iam-$BRANCH-$BROWSER
+    app: iam-$BROWSER
     tier: frontend
 
 ---
@@ -17,13 +17,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: iam-nginx-$BRANCH-$BROWSER
+  name: iam-nginx-$BROWSER
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: iam-$BRANCH-$BROWSER
+        app: iam-$BROWSER
         tier: frontend
     spec:
       nodeSelector:
@@ -40,12 +40,12 @@ spec:
             memory: 50Mi
         env:
         - name: NGINX_HOST
-          value: iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local.io
+          value: iam-nginx-$BROWSER.default.svc.cluster.local.io
         - name: NGINX_PORT
           value: "443"
         - name: NGINX_SERVER_NAME
-          value: iam-nginx-$BRANCH-$BROWSER.default.svc.cluster.local.io
+          value: iam-nginx-$BROWSER.default.svc.cluster.local.io
         - name: NGINX_PROXY_PASS
-          value: http://iam-login-service-$BRANCH-$BROWSER:8080
+          value: http://iam-login-service-$BROWSER:8080
       imagePullSecrets:
       - name: cloud-vm181
