@@ -89,6 +89,4 @@ spec:
         configMapKeyRef:
           name: iam-ts-config
           key: token_exchange_client_secret
-  imagePullSecrets:
-  - name: cloud-vm181
 " > iam-testsuite.pod.yaml

@@ -2,7 +2,7 @@
 // name: iam-deployment-test
 
 properties([
-  buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')),
+  buildDiscarder(logRotator(numToKeepStr: '5')),
   pipelineTriggers([cron('@daily')]),
   parameters([
     choice(name: 'BROWSER',          choices: 'chrome\nfirefox', description: ''),
@@ -69,6 +69,8 @@ stage("Test"){
   
       }catch(error){
         currentBuild.result = 'FAILURE'
+        slackSend color: 'danger', message: "${env.JOB_NAME} - #${env.BUILD_NUMBER} Failure (<${env.BUILD_URL}|Open>)"
+        sh "exit 1"
       }finally{
         cleanup()
       }

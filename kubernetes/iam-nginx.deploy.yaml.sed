@@ -47,5 +47,3 @@ spec:
           value: iam-nginx-$BROWSER.default.svc.cluster.local.io
         - name: NGINX_PROXY_PASS
           value: http://iam-login-service-$BROWSER:8080
-      imagePullSecrets:
-      - name: cloud-vm181
