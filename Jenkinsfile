@@ -6,30 +6,29 @@ properties([
   pipelineTriggers([cron('@daily')]),
   parameters([
     choice(name: 'BROWSER',          choices: 'chrome\nfirefox', description: ''),
-    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:develop-latest', description: 'IAM docker image name'),
+    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v0.6.1.rc1-latest', description: 'IAM docker image name'),
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/indigo-iam/iam-robot-testsuite.git', description: 'Testsuite code repository'),
     string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository'),
     string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
   ]),
 ])
 
+def pod_name, report_dir
 
-
-stage("Prepare"){
-  node('generic'){
-    git 'https://github.com/marcocaberletti/iam-deployment-test.git'
-    stash name: "source", include: "./*"
+node('kubectl') {
+  stage('Prepare'){
+    checkout scm
+    
+    pod_name = "iam-ts-${UUID.randomUUID().toString()}"
+    report_dir = "/srv/scratch/${pod_name}/reports"
+    
+    sh "mkdir -p ${report_dir}"
   }
-}
-
-stage("Test"){
-  node('kubectl') {
-    def pod_name = "iam-ts-${UUID.randomUUID().toString()}"
-    def report_dir = "/srv/scratch/${pod_name}/reports"
   
+  stage("Test"){
     withEnv([
-      "BROWSER=${browser}",
-      "IAM_IMAGE=${iam_image}",
+      "BROWSER=${params.BROWSER}",
+      "IAM_IMAGE=${params.IAM_IMAGE}",
       "POD_NAME=${pod_name}",
       "OUTPUT_REPORTS=${report_dir}",
       "TESTSUITE_REPO=${params.TESTSUITE_REPO}",
@@ -37,8 +36,6 @@ stage("Test"){
       "TESTSUITE_OPTS=${params.TESTSUITE_OPTS}"
     ]){
       try{
-        sh "mkdir -p ${OUTPUT_REPORTS}"
-        unstash "source"
         dir('kubernetes'){
           sh "./generate_deploy_templates.sh"
           sh "IAM_BASE_URL=https://iam-nginx-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
@@ -46,55 +43,49 @@ stage("Test"){
         }
         
         sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
-        wait_kube_deploy("iam-db-${browser}")
+        wait_kube_deploy("iam-db-${params.BROWSER}")
         
         sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/iam-login-service.secret.yaml"
         
         sh "kubectl apply -f kubernetes/iam-login-service.deploy.yaml"
-        wait_kube_deploy("iam-login-service-${browser}")
+        wait_kube_deploy("iam-login-service-${params.BROWSER}")
         
         sh "kubectl apply -f kubernetes/iam-nginx.deploy.yaml"
-        wait_kube_deploy("iam-nginx-${browser}")
+        wait_kube_deploy("iam-nginx-${params.BROWSER}")
         
         sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
         sh "while ( [ 'Running' != `kubectl get pod $POD_NAME -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
         
         sh "kubectl logs -f $POD_NAME"
         
-        dir("${report_dir}"){
-            stash name: "outputs", include: "./*"
-        }
-        
-        currentBuild.result = 'SUCCESS'
-  
-      }catch(error){
+      }catch(e){
         currentBuild.result = 'FAILURE'
         slackSend color: 'danger', message: "${env.JOB_NAME} - #${env.BUILD_NUMBER} Failure (<${env.BUILD_URL}|Open>)"
-        sh "exit 1"
+        throw e
       }finally{
         cleanup()
       }
     }
   }
-}
-
-stage("Process outputs"){
-  node('generic') {
-    unstash "outputs"
-    archiveArtifacts "**"
   
+  stage('Process output'){
+    dir("${report_dir}"){
+      archiveArtifacts "**"
+    }
+    
     step([$class: 'RobotPublisher',
       disableArchiveOutput: false,
       logFileName: 'log.html',
       otherFiles: '*.png',
       outputFileName: 'output.xml',
-      outputPath: ".",
+      outputPath: "${report_dir}",
       passThreshold: 100,
       reportFileName: 'report.html',
       unstableThreshold: 90]);
+    
+    currentBuild.result = 'SUCCESS'
   }
 }
-
 
 def wait_kube_deploy(name) {
   withEnv(["DEPLOY_NAME=${name}"]){
