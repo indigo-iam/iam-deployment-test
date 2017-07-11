@@ -36,6 +36,7 @@ spec:
       containers:
       - name: iam-login-service-$BROWSER
         image: $DOCKER_REGISTRY_HOST/$IAM_IMAGE
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
           name: iam
@@ -66,7 +67,7 @@ spec:
         - name: WAIT_TIMEOUT
           value: "60"
         - name: IAM_JAVA_OPTS
-          value: -Dspring.profiles.active=mysql-test
+          value: -Dspring.profiles.active=mysql-test -DmockX509Authentication=true
         - name: IAM_BASE_URL
           value: https://iam-nginx-$BROWSER.default.svc.cluster.local
         - name: IAM_ISSUER
