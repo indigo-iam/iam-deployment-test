@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 pipeline {
   agent { label 'kubectl' }
   
@@ -10,9 +12,9 @@ pipeline {
   
   parameters {
     choice(name: 'BROWSER',          choices: 'chrome\nfirefox', description: '')
-    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v1.0.0.rc0-SNAPSHOT-latest', description: 'IAM docker image name')
+    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v1.0.0.rc1-SNAPSHOT-latest', description: 'IAM docker image name')
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/indigo-iam/iam-robot-testsuite.git', description: 'Testsuite code repository')
-    string(name: 'TESTSUITE_BRANCH', defaultValue: 'fix/119', description: 'Testsuite code repository')
+    string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository')
     string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
   }
 

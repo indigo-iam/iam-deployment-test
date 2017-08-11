@@ -67,7 +67,7 @@ spec:
         - name: WAIT_TIMEOUT
           value: "60"
         - name: IAM_JAVA_OPTS
-          value: -Dspring.profiles.active=mysql-test -DmockX509Authentication=true
+          value: -Xms512m -Xmx1g -Dspring.profiles.active=mysql-test -DmockX509Authentication=true
         - name: IAM_BASE_URL
           value: https://iam-nginx-$BROWSER.default.svc.cluster.local
         - name: IAM_ISSUER
