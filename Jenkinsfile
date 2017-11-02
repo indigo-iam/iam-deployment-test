@@ -12,7 +12,7 @@ pipeline {
   
   parameters {
     choice(name: 'BROWSER',          choices: 'chrome\nfirefox', description: '')
-    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v1.0.0-latest', description: 'IAM docker image name')
+    string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v1.1.0-latest', description: 'IAM docker image name')
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/indigo-iam/iam-robot-testsuite.git', description: 'Testsuite code repository')
     string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository')
     string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
@@ -42,20 +42,17 @@ pipeline {
         script {
           dir('kubernetes'){
             sh "./generate_deploy_templates.sh"
-            sh "IAM_BASE_URL=https://iam-nginx-${BROWSER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
+            sh "IAM_BASE_URL=https://iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
           }
         }
         
         sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
-        sh "kubectl rollout status deploy/iam-db-${params.BROWSER} | grep -q 'successfully rolled out'"
+        sh "kubectl rollout status deploy/iam-db-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
         
         sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/iam-login-service.secret.yaml"
         
         sh "kubectl apply -f kubernetes/iam-login-service.deploy.yaml"
-        sh "kubectl rollout status deploy/iam-login-service-${params.BROWSER} | grep -q 'successfully rolled out'"
-        
-        sh "kubectl apply -f kubernetes/iam-nginx.deploy.yaml"
-        sh "kubectl rollout status deploy/iam-nginx-${params.BROWSER} | grep -q 'successfully rolled out'"
+        sh "kubectl rollout status deploy/iam-deploy-test-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
         
         sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
         sh "while ( [ 'Running' != `kubectl get pod ${env.POD_NAME} -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
@@ -65,7 +62,6 @@ pipeline {
       
       post {
         always {
-          sh "kubectl delete -f kubernetes/iam-nginx.deploy.yaml"
           sh "kubectl delete -f kubernetes/iam-login-service.deploy.yaml"
           sh "kubectl delete -f kubernetes/mysql.deploy.yaml"
           sh "kubectl delete -f kubernetes/iam-testsuite.pod.yaml"

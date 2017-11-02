@@ -8,7 +8,7 @@ if [ -z ${IAM_BASE_URL+x} ]; then
 fi
 
 IAM_TEST_CLIENT_URL=${IAM_TEST_CLIENT_URL:-"$IAM_BASE_URL/iam-test-client"}
-DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-"cloud-vm128.cloud.cnaf.infn.it"}
+DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-"cloud-vm114.cloud.cnaf.infn.it"}
 REMOTE_URL=${REMOTE_URL:-"http://selenium-hub.default.svc.cluster.local:4444/wd/hub"}
 TESTSUITE_REPO=${TESTSUITE_REPO:-"https://github.com/indigo-iam/iam-robot-testsuite.git"}
 TESTSUITE_BRANCH=${TESTSUITE_BRANCH:-"master"}

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: iam-deploy-test-$BUILD_NUMBER
+  name: iam-deploy-test-1
   labels:
     app: iam-deploy-test
 spec:
@@ -9,7 +9,7 @@ spec:
   - name: https
     port: 443
   selector:
-    app: iam-deploy-test-$BUILD_NUMBER
+    app: iam-deploy-test-1
     tier: login-service
 
 ---
@@ -17,13 +17,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: iam-deploy-test-$BUILD_NUMBER
+  name: iam-deploy-test-1
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: iam-deploy-test-$BUILD_NUMBER
+        app: iam-deploy-test-1
         tier: login-service
     spec:
       nodeSelector:
@@ -34,7 +34,7 @@ spec:
           secretName: iam-deploy-test-secret
       containers:
       - name: iam-login-service
-        image: $DOCKER_REGISTRY_HOST/$IAM_IMAGE
+        image: cloud-vm114.cloud.cnaf.infn.it/indigoiam/iam-login-service:v1.1.0-latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -60,7 +60,7 @@ spec:
           mountPath: /srv/indigo-iam/saml-idp/idp/shibboleth-idp/metadata
         env:
         - name: WAIT_HOST
-          value: iam-db-$BUILD_NUMBER
+          value: iam-db-1
         - name: WAIT_PORT
           value: "3306"
         - name: WAIT_TIMEOUT
@@ -68,19 +68,19 @@ spec:
         - name: IAM_JAVA_OPTS
           value: -Xms512m -Xmx1g -Dspring.profiles.active=mysql-test -DmockX509Authentication=true
         - name: IAM_BASE_URL
-          value: https://iam-deploy-test-$BUILD_NUMBER.default.svc.cluster.local
+          value: https://iam-deploy-test-1.default.svc.cluster.local
         - name: IAM_ISSUER
-          value: https://iam-deploy-test-$BUILD_NUMBER.default.svc.cluster.local
+          value: https://iam-deploy-test-1.default.svc.cluster.local
         - name: IAM_USE_FORWARDED_HEADERS
           value: "true"
         - name: IAM_DB_HOST
-          value: iam-db-$BUILD_NUMBER
+          value: iam-db-1
         - name: IAM_DB_USERNAME
           value: iam
         - name: IAM_DB_PASSWORD
           value: pwd
         - name: IAM_GOOGLE_CLIENT_REDIRECT_URIS
-          value: https://iam-deploy-test-$BUILD_NUMBER.default.svc.cluster.local/openid_connect_login
+          value: https://iam-deploy-test-1.default.svc.cluster.local/openid_connect_login
         - name: IAM_SAML_IDP_METADATA
           value: file:///srv/indigo-iam/saml-idp/idp/shibboleth-idp/metadata/idp-metadata.xml
         - name: IAM_SAML_ENTITY_ID
@@ -88,7 +88,7 @@ spec:
         - name: IAM_NOTIFICATION_DISABLE
           value: "true"
       - name: iam-nginx
-        image: $DOCKER_REGISTRY_HOST/italiangrid/iam-nginx:latest
+        image: cloud-vm114.cloud.cnaf.infn.it/italiangrid/iam-nginx:latest
         ports:
         - containerPort: 443
           name: https
@@ -98,11 +98,11 @@ spec:
             memory: 50Mi
         env:
         - name: NGINX_HOST
-          value: iam-deploy-test-$BUILD_NUMBER.default.svc.cluster.local
+          value: iam-deploy-test-1.default.svc.cluster.local
         - name: NGINX_PORT
           value: "443"
         - name: NGINX_SERVER_NAME
-          value: iam-deploy-test-$BUILD_NUMBER.default.svc.cluster.local
+          value: iam-deploy-test-1.default.svc.cluster.local
         - name: NGINX_PROXY_PASS
           value: http://localhost:8080
           
