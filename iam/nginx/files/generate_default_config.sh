@@ -7,7 +7,7 @@ echo "
 server {
   listen        443 ssl;
   server_name   $NGINX_SERVER_NAME;
-  access_log    /var/log/nginx/iam_local_io.access.log  combined;
+  access_log    /var/log/nginx/access.log  combined;
 
   ssl on;
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
