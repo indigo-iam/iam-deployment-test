@@ -95,4 +95,4 @@ spec:
         configMapKeyRef:
           name: iam-ts-config
           key: token_exchange_client_secret
-" > iam-testsuite.pod.yaml
+" > kubernetes/iam-testsuite.pod.yaml

@@ -32,29 +32,38 @@ pipeline {
   }
   
   stages {
-    stage('prepare'){
+    stage('prepare images'){
+      agent { label 'docker' }
+      steps {
+        deleteDir()
+        checkout scm
+        dir('docker-images/nginx'){
+          sh './build-image.sh'
+          sh './push-image.sh'
+        }
+      }
+    }
+
+    stage('prepare deploy'){
       steps {
         deleteDir()
         checkout scm
         sh "mkdir -p ${env.OUTPUT_REPORTS}"
+        dir('kubernetes'){
+          sh "./generate_deploy_files.sh"
+          sh "./generate_ts_pod_file.sh"
+        }
       }
     }
     
     stage('test'){
       steps {
-        script {
-          dir('kubernetes'){
-            sh "./generate_deploy_templates.sh"
-            sh "./generate_ts_pod_conf.sh"
-          }
-        }
-        
         sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
         sh "kubectl rollout status deploy/iam-db-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
         
-        sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/iam-login-service.secret.yaml"
+        sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/saml.secret.yaml -f kubernetes/ssl.secret.yaml"
         
-        sh "kubectl apply -f kubernetes/iam-login-service.deploy.yaml"
+        sh "kubectl apply -f kubernetes/iam.deploy.yaml"
         sh "kubectl rollout status deploy/iam-deploy-test-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
         
         sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
@@ -65,9 +74,7 @@ pipeline {
       
       post {
         always {
-          sh "kubectl delete -f kubernetes/iam-login-service.deploy.yaml"
-          sh "kubectl delete -f kubernetes/mysql.deploy.yaml"
-          sh "kubectl delete -f kubernetes/iam-testsuite.pod.yaml"
+          sh "kubectl delete -f kubernetes/"
         }
       }
     }

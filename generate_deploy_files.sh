@@ -7,7 +7,7 @@ if [ -z ${BROWSER+x} ] || [ -z ${DOCKER_REGISTRY_HOST+x} ] || [ -z ${IAM_IMAGE+x
 	exit 1
 fi
 
-for file in *.sed; do
-	newfile=`basename -s .sed ${file}`
-	envsubst < ${file} > ${newfile}
+for file in `find kubernetes/ -type f -name *.tmpl`; do
+	newfile=`basename -s .tmpl ${file}`
+	envsubst < ${file} > kubernetes/${newfile}
 done

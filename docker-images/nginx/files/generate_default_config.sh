@@ -11,8 +11,8 @@ server {
 
   ssl on;
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_certificate      /etc/ssl/certs/iam.cert.pem;
-  ssl_certificate_key  /etc/ssl/private/iam.key.pem;
+  ssl_certificate      /etc/ssl/certs/iam.crt.pem;
+  ssl_certificate_key  /etc/ssl/certs/iam.key.pem;
 
   location / {
     proxy_pass              $NGINX_PROXY_PASS;

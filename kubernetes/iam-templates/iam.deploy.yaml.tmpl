@@ -29,9 +29,12 @@ spec:
       nodeSelector:
         role: worker
       volumes:
-      - name: iam-deploy-test-secret
+      - name: saml-volume
         secret:
-          secretName: iam-deploy-test-secret
+          secretName: iam-deploy-test-saml-secret
+      - name: ssl-volume
+        secret:
+          secretName: iam-deploy-test-ssl-secret
       containers:
       - name: iam-login-service
         image: $DOCKER_REGISTRY_HOST/$IAM_IMAGE
@@ -56,7 +59,7 @@ spec:
             cpu: 1000m
             memory: 1500Mi
         volumeMounts:
-        - name: iam-deploy-test-secret
+        - name: saml-volume
           mountPath: /srv/indigo-iam/saml-idp/idp/shibboleth-idp/metadata
         env:
         - name: WAIT_HOST
@@ -92,6 +95,9 @@ spec:
         ports:
         - containerPort: 443
           name: https
+        volumeMounts:
+        - name: ssl-volume
+          mountPath: /etc/ssl/certs/ 
         resources:
           requests:
             cpu: 100m
@@ -105,4 +111,4 @@ spec:
           value: iam-deploy-test-$BUILD_NUMBER.default.svc.cluster.local
         - name: NGINX_PROXY_PASS
           value: http://localhost:8080
-          
+
