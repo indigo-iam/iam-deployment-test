@@ -26,6 +26,9 @@ pipeline {
     TESTSUITE_REPO = "${params.TESTSUITE_REPO}"
     TESTSUITE_BRANCH ="${params.TESTSUITE_BRANCH}"
     TESTSUITE_OPTS = "${params.TESTSUITE_OPTS}"
+    IAM_BASE_URL = "https://iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local"
+    IAM_HTTP_SCHEME = "https"
+    IAM_HTTP_HOST = "iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local"
   }
   
   stages {
@@ -42,7 +45,7 @@ pipeline {
         script {
           dir('kubernetes'){
             sh "./generate_deploy_templates.sh"
-            sh "IAM_BASE_URL=https://iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local ./generate_ts_pod_conf.sh"
+            sh "./generate_ts_pod_conf.sh"
           }
         }
         

@@ -18,6 +18,8 @@ POD_NAME=${POD_NAME:-"iam-testsuite"}
 OUTPUT_REPORTS=${OUTPUT_REPORTS:-"reports/"}
 TESTSUITE_OPTS="${TESTSUITE_OPTS:-}"
 NAMESPACE=${NAMESPACE:-"default"}
+IAM_HTTP_SCHEME=${IAM_HTTP_SCHEME:-"https"}
+IAM_HTTP_HOST=${IAM_HTTP_HOST:-"iam-deploy-test.default.svc.cluster.local"}
 
 echo "
 apiVersion: v1
@@ -43,6 +45,10 @@ spec:
     env:
     - name: IAM_BASE_URL
       value: $IAM_BASE_URL
+    - name: IAM_HTTP_SCHEME
+      value: ${IAM_HTTP_SCHEME}
+    - name: IAM_HTTP_HOST
+      value: ${IAM_HTTP_HOST}
     - name: IAM_TEST_CLIENT_URL
       value: $IAM_TEST_CLIENT_URL
     - name: REMOTE_URL
