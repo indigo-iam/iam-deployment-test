@@ -49,10 +49,8 @@ pipeline {
         deleteDir()
         checkout scm
         sh "mkdir -p ${env.OUTPUT_REPORTS}"
-        dir('kubernetes'){
-          sh "./generate_deploy_files.sh"
-          sh "./generate_ts_pod_file.sh"
-        }
+        sh "./generate_deploy_files.sh"
+        sh "./generate_ts_pod_file.sh"
       }
     }
     
