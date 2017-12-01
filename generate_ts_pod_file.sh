@@ -33,9 +33,8 @@ spec:
   restartPolicy: Never
   volumes:
   - name: scratch-area
-    nfs:
-      server: 10.0.0.30
-      path: /srv/kubernetes/volumes/scratch
+    persistentVolumeClaim:
+      claimName: scratch-area-claim
   containers:
   - name: iam-testsuite
     image: $DOCKER_REGISTRY_HOST/italiangrid/iam-robot-testsuite:latest
