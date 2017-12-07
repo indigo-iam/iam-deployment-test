@@ -30,6 +30,7 @@ pipeline {
     IAM_HTTP_SCHEME = "https"
     IAM_HTTP_HOST = "iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local"
     DOCKER_REGISTRY_HOST = "${env.DOCKER_REGISTRY_HOST}"
+    BUILD_NUMBER = "${env.BUILD_NUMBER}"
   }
   
   stages {
