@@ -29,50 +29,58 @@ pipeline {
     IAM_BASE_URL = "https://iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local"
     IAM_HTTP_SCHEME = "https"
     IAM_HTTP_HOST = "iam-deploy-test-${env.BUILD_NUMBER}.default.svc.cluster.local"
+    DOCKER_REGISTRY_HOST = "${env.DOCKER_REGISTRY_HOST}"
   }
   
   stages {
     stage('prepare images'){
       agent { label 'docker' }
       steps {
-        deleteDir()
-        checkout scm
-        dir('docker-images/nginx'){
-          sh './build-image.sh'
-          sh './push-image.sh'
+        container('docker-runner'){
+          deleteDir()
+          checkout scm
+          dir('docker-images/nginx'){
+            sh './build-image.sh'
+            sh './push-image.sh'
+          }
         }
       }
     }
 
     stage('prepare deploy'){
       steps {
-        deleteDir()
-        checkout scm
-        sh "mkdir -p ${env.OUTPUT_REPORTS}"
-        sh "./generate_deploy_files.sh"
-        sh "./generate_ts_pod_file.sh"
+        container('kubectl-runner'){
+          deleteDir()
+          checkout scm
+          sh "mkdir -p ${env.OUTPUT_REPORTS}"
+          sh "./generate_deploy_files.sh"
+          sh "./generate_ts_pod_file.sh"
+        }
       }
     }
     
     stage('test'){
       steps {
-        sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
-        sh "kubectl rollout status deploy/iam-db-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
+        container('kubectl-runner'){
+          sh "kubectl apply -f kubernetes/mysql.deploy.yaml"
+          sh "kubectl rollout status deploy/iam-db-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
         
-        sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/saml.secret.yaml -f kubernetes/ssl.secret.yaml"
+          sh "kubectl apply -f kubernetes/ts-params.cm.yaml -f kubernetes/saml.secret.yaml -f kubernetes/ssl.secret.yaml"
         
-        sh "kubectl apply -f kubernetes/iam.deploy.yaml"
-        sh "kubectl rollout status deploy/iam-deploy-test-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
+          sh "kubectl apply -f kubernetes/iam.deploy.yaml"
+          sh "kubectl rollout status deploy/iam-deploy-test-${env.BUILD_NUMBER} | grep -q 'successfully rolled out'"
         
-        sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
-        sh "while ( [ 'Running' != `kubectl get pod ${env.POD_NAME} -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
+          sh "kubectl apply -f kubernetes/iam-testsuite.pod.yaml"
+          sh "while ( [ 'Running' != `kubectl get pod ${env.POD_NAME} -o jsonpath='{.status.phase}'` ] ); do echo 'Waiting testsuite...'; sleep 5; done"
         
-        sh "kubectl logs -f ${env.POD_NAME}"
+          sh "kubectl logs -f ${env.POD_NAME}"
+        }
       }
-      
       post {
         always {
-          sh "kubectl delete -f kubernetes/"
+          container('kubectl-runner'){
+            sh "kubectl delete -f kubernetes/"
+          }
         }
       }
     }
