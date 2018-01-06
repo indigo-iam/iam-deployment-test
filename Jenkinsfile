@@ -4,7 +4,7 @@ pipeline {
   agent { label 'kubectl' }
   
   options {
-    timeout(time: 2, unit: 'HOURS')
+    timeout(time: 4, unit: 'HOURS')
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
 
