@@ -1,0 +1,10 @@
+sudo: required
+services:
+  - docker
+dist: trusty
+env:
+  IAM_REPO_BRANCH="fix/86"
+  IAM_TESTSUITE_OPTIONS="-s tests.home.account-linking"
+script:
+  - /bin/bash travis/deploy.sh
+
