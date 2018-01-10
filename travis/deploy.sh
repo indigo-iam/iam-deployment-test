@@ -31,9 +31,10 @@ function upload_reports_and_logs() {
       --upload-file reports.tar.gz \
       ${REPORT_TARBALL_URL}
 
-    echo "Reports for this deployment test can be accessed at:\n ${REPORT_TARBALL_URL}"
+    echo "Reports for this deployment test can be accessed at:"
+    echo ${REPORT_TARBALL_URL}
   fi
-	popd
+  popd
 }
   
 function cleanup(){
