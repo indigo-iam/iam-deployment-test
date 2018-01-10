@@ -60,13 +60,14 @@ cd compose/deployment-test
 docker-compose up -d 
 set +e
 docker-compose logs -f iam-robot-testsuite
-ts_rc=$?
+
+ts_ec=$(docker inspect deploymenttest_iam-robot-testsuite_1 -f '{{.State.ExitCode}}')
 
 tar_reports_and_logs
 set -e
 upload_reports_and_logs
 docker-compose stop
 
-if [ ${ts_rc} != 0 ]; then
+if [ ${ts_ec} != 0 ]; then
   exit 1
 fi
