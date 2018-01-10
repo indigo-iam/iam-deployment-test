@@ -11,9 +11,12 @@ work_dir=$(mktemp -d -t 'iam_dt_XXXX')
 reports_dir=${work_dir}/reports
 
 function tar_reports_and_logs(){
-  docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
+  if [ ! -d ${reports_dir} ]; then
+    mkdir -p ${reports_dir}
+  fi
   docker-compose logs --no-color iam >${reports_dir}/iam.log
   docker-compose logs --no-color iam-be >${reports_dir}/iam-be.log
+  docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
   pushd ${work_dir} 
   tar cvzf reports.tar.gz reports
   popd
@@ -59,10 +62,10 @@ docker-compose logs -f iam-robot-testsuite
 ts_rc=$?
 
 tar_reports_and_logs
+set -e
 upload_reports_and_logs
 docker-compose stop
 
 if [ ${ts_rc} != 0 ]; then
-  echo "Testsuite failed"
   exit 1
 fi
