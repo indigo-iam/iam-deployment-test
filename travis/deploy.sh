@@ -14,6 +14,7 @@ function tar_reports_and_logs(){
   if [ ! -d ${reports_dir} ]; then
     mkdir -p ${reports_dir}
   fi
+  docker-compose logs iam-be
   docker-compose logs --no-color iam >${reports_dir}/iam.log
   docker-compose logs --no-color iam-be >${reports_dir}/iam-be.log
   docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
