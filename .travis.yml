@@ -1,10 +1,12 @@
 sudo: required
 services:
-  - docker
+- docker
 dist: trusty
 env:
-  IAM_REPO_BRANCH="fix/86"
-  IAM_TESTSUITE_OPTIONS="-s tests.home.account-linking"
+  - IAM_REPO_BRANCH="fix/86"
+  - IAM_TESTSUITE_OPTIONS="-s tests.home.account-linking"
+  - REPORT_REPO_URL="https://repo.cloud.ba.infn.it/repository/travis"
+  - REPORT_REPO_USERNAME="travis"
+  - secure: LY07fWOCn30ECQpawdBGVvf10W33Jr+BPFcqN/MAXHHxTJtHRZwM4WoeLX/Ix7qdB25sPDMhF6x1xvfCpqpnWrvRTUN88Hg/pERN6/i8UY1WT+xkvv2eCO5cIy5U9qP0vC0h0ulVYPcgqvE2mZeer+7695v0Kq968ou36e1pOAIV4jSn2JZ7E3oU6yDuGZCeLF3wyumYB4UBkioIG233CjV0BFofbiwpo6iYlv1V6ylJTVkBLhccNFIT83SFijp0ZVH9UFCvvBBLaYAlfhnOcR/QFF0rwHfPWpo26Ku+0HSE/aNEJjUUY7ZHAUe/vgKHDSWaC/hJl8Pl5CxTa383fyOGRkJmkPo+146MPHEgkFG1I0Jz+7h6SIW4SWR3lQeZqva4EdYQKOq7x4GKy6+Tvwb7mEtLUq/6nEffdNzEo0DPykWaf5YqaCBPkKYXWNwqpO8zOe5iN0ls9faITQVh5VvKFRzFISFbGpMKDZZpd0AU56xtIwYUA51PRFIP9CO3+D8zvSxMNgNhjNUtt8OFDFuhprz3XrucG7G2JUtUEcUHHve0lhKZoSZMHeJzMFYbHQBVFxz3PiIAtM2HEMfhmdXlIxOQvkD+EBWhyU1SklD/ssDTPcejPsMTraVD4cW6RcdYRsUvZG8l3W47Euh6LsobltS6Ip5Ym2t8iIOG/08=
 script:
-  - /bin/bash travis/deploy.sh
-
+- "/bin/bash travis/deploy.sh"

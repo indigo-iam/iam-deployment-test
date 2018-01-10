@@ -18,6 +18,20 @@ function tar_reports_and_logs(){
   tar cvzf reports.tar.gz reports
   popd
 }
+
+function upload_reports_and_logs() {
+  pushd ${work_dir}
+  if [ -r reports.tar.gz ]; then
+    REPORT_TARBALL_URL=${REPORT_REPO_URL}/${TRAVIS_REPO_SLUG}/${TRAVIS_JOB_ID}/reports.tar.gz
+    curl -v \
+      --user "${REPORT_REPO_USERNAME}:${REPORT_REPO_PASSWORD}" \
+      --upload-file reports.tar.gz \
+      ${REPORT_TARBALL_URL}
+
+    echo "Reports for this deployment test can be accessed at:\n ${REPORT_TARBALL_URL}"
+  fi
+	popd
+}
   
 function cleanup(){
   retcod=$?
@@ -45,6 +59,7 @@ docker-compose logs -f iam-robot-testsuite
 ts_rc=$?
 
 tar_reports_and_logs
+upload_reports_and_logs
 docker-compose stop
 
 if [ ${ts_rc} != 0 ]; then
