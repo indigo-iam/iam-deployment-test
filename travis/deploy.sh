@@ -2,14 +2,14 @@
 
 IAM_REPO=${IAM_REPO:-https://github.com/indigo-iam/iam.git}
 IAM_REPO_BRANCH=${IAM_REPO_BRANCH:-develop}
+TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
+TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
+TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+
 set -xe
 work_dir=$(mktemp -d -t 'iam_dt_XXXX')
 reports_dir=${work_dir}/reports
 
-echo "Travis env"
-echo ${TRAVIS_REPO_SLUG}
-echo ${TRAVIS_JOB_ID}
-echo ${TRAVIS_JOB_NUMBER}
 function tar_reports_and_logs(){
   docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
   docker-compose logs --no-color iam >${reports_dir}/iam.log
@@ -39,14 +39,15 @@ git clone ${IAM_REPO} iam
 cd iam
 git checkout ${IAM_REPO_BRANCH}
 cd compose/deployment-test
-set +e
 docker-compose up -d 
+set +e
 docker-compose logs -f iam-robot-testsuite
-tar_reports_and_logs
+ts_rc=$?
 
-if [ $? != 0 ]; then
+tar_reports_and_logs
+docker-compose stop
+
+if [ ${ts_rc} != 0 ]; then
   echo "Testsuite failed"
   exit 1
 fi
-
-docker-compose stop
