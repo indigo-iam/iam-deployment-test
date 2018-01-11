@@ -1,12 +1,14 @@
 #!/bin/bash
+set -e
+[[ -n "${IAM_DEPLOYMENT_TEST_DEBUG}" ]] && set -x
 
 IAM_REPO=${IAM_REPO:-https://github.com/indigo-iam/iam.git}
 IAM_REPO_BRANCH=${IAM_REPO_BRANCH:-develop}
-TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
-TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
-TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG:-indigo-iam/iam-deployment-test}
+TRAVIS_JOB_ID=${TRAVIS_JOB_ID:-0}
+TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER:-0}
+REPORT_REPO_URL=${REPORT_REPO_URL:-}
 
-set -xe
 work_dir=$(mktemp -d -t 'iam_dt_XXXX')
 reports_dir=${work_dir}/reports
 
@@ -16,6 +18,7 @@ function tar_reports_and_logs(){
   fi
   docker-compose logs --no-color iam >${reports_dir}/iam.log
   docker-compose logs --no-color iam-be >${reports_dir}/iam-be.log
+  docker-compose logs --no-color client >${reports_dir}/client.log
   docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
   pushd ${work_dir} 
   tar cvzf reports.tar.gz reports
@@ -25,9 +28,13 @@ function tar_reports_and_logs(){
 function upload_reports_and_logs() {
   pushd ${work_dir}
   if [ -r reports.tar.gz ]; then
+    if [ -z "${REPORT_REPO_URL}" ]; then
+      echo "Skipping report upload: REPORT_REPO_URL is undefined or empty"
+      popd
+      return 0
+    fi
     REPORT_TARBALL_URL=${REPORT_REPO_URL}/${TRAVIS_REPO_SLUG}/${TRAVIS_JOB_ID}/reports.tar.gz
-    curl -v \
-      --user "${REPORT_REPO_USERNAME}:${REPORT_REPO_PASSWORD}" \
+    curl --user "${REPORT_REPO_USERNAME}:${REPORT_REPO_PASSWORD}" \
       --upload-file reports.tar.gz \
       ${REPORT_TARBALL_URL}
 
