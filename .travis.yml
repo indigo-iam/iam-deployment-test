@@ -6,7 +6,6 @@ env:
   global:
   - SERVICE_WAIT_TIMEOUT="120"
   - IAM_TESTSUITE_TIMEOUT="10"
-  - IAM_TESTSUITE_OPTS="--exclude=test-client"
   - IAM_REPO_BRANCH="fix/86"
   - REPORT_REPO_URL="https://repo.cloud.ba.infn.it/repository/travis"
   - secure: CHxZDIU3eRyS/7qQHj+7zKaSv6to84XawgERVwtO7AmibAbz/mh8AzP8df2jMuojTuZHcJlA6f85lTahar4T31iEmQFh2eL/u4QSdtni3VEiZJuXWvbkSE68tG1n+D7vOj3EiCLKU+SmhtY/PHrIvb4CHZCxPUdxGM5Y62rAws2Sn7sICZMnoxwbpmQdvh/ZSi57vbKaC05xITNLt06JDgIDiWIvRD4pV4yKkxvxf0514jDZewWqSRhXhnKYH2pZlCt3DNc7EvLm7E9MymmwS26F06+Sf4EFbi1bYcncXUwa4Btod6ILGEaS3I7gch0fZ57vc70l2r/OcdnfcPkZymgd6d2nPbTPBiqBtasPcVNWdvwxIKTf+DPd7mAHHZ7/8Y3lRDl6H7RQ8tM/9YRcOAbqm4fNH+QExDaD29zOpje4KVPYu13Coh4romagUo/Ip7Fqnsnsgs+fMaU2dwnoy6xdmbo6BE5GF4Vs1Xp5/r8Lzd7gxajA3r1WjrfAbv6NmZ4MA3dZnSlTJoSK9nWl9U1ljNrOtAQUX4DF75GFD7GDzeBDoYKaxsR3+G5V+X3LJmGIXWprGF8NVfUBIPMCQxKjk1r5+wlJ9n70zofi45itjVGTFGvIOmzznPlkmYLwb9e/LmbeUZBq/nRCMBejJXmje2FEpsWI/eRbUIb9QRE=
