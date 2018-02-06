@@ -37,7 +37,7 @@ spec:
       claimName: scratch-area-claim
   containers:
   - name: iam-testsuite
-    image: $DOCKER_REGISTRY_HOST/italiangrid/iam-robot-testsuite:latest
+    image: $DOCKER_REGISTRY_HOST/indigoiam/iam-robot-testsuite:latest
     volumeMounts:
     - name: scratch-area
       mountPath: /srv/scratch
