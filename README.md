@@ -1,3 +1,5 @@
-# iam-deployment-test
+# IAM deployment test code 
 
-Run INDIGO IAM deployment test on Kubernetes.
+Provides docker images and logic to run IAM deployment and integration
+test automatically on k8s and travis.
+
