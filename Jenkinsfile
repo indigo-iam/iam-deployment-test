@@ -13,7 +13,7 @@ pipeline {
     string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v1.2.1-latest', description: 'IAM docker image name')
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/indigo-iam/iam-robot-testsuite.git', description: 'Testsuite code repository')
     string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository')
-    string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client', description: 'Additional testsuite options')
+    string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client --exclude=tokens', description: 'Additional testsuite options')
   }
 
   environment {
@@ -36,7 +36,6 @@ pipeline {
       agent { label 'docker' }
       steps {
         container('docker-runner'){
-          deleteDir()
           checkout scm
           dir('docker-images/nginx'){
             sh './build-image.sh'
@@ -49,7 +48,6 @@ pipeline {
     stage('prepare deploy'){
       steps {
         container('kubectl-runner'){
-          deleteDir()
           checkout scm
           sh "mkdir -p ${env.OUTPUT_REPORTS}"
           sh "./generate_deploy_files.sh"
@@ -116,7 +114,7 @@ pipeline {
 
     changed {
       script{
-        if('SUCCESS'.equals(currentBuild.result)) {
+        if('SUCCESS'.equals(currentBuild.currentResult)) {
           slackSend color: 'good', message: "${env.JOB_NAME} - #${env.BUILD_NUMBER} Back to normal (<${env.BUILD_URL}|Open>)"
         }
       }
