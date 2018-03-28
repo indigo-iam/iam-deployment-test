@@ -13,7 +13,7 @@ pipeline {
     string(name: 'IAM_IMAGE',        defaultValue: 'indigoiam/iam-login-service:v1.2.1-latest', description: 'IAM docker image name')
     string(name: 'TESTSUITE_REPO',   defaultValue: 'https://github.com/indigo-iam/iam-robot-testsuite.git', description: 'Testsuite code repository')
     string(name: 'TESTSUITE_BRANCH', defaultValue: 'develop', description: 'Testsuite code repository')
-    string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client --exclude=tokens', description: 'Additional testsuite options')
+    string(name: 'TESTSUITE_OPTS',   defaultValue: '--exclude=test-client --exclude=tokens:*', description: 'Additional testsuite options')
   }
 
   environment {
