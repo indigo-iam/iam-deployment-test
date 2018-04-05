@@ -38,6 +38,10 @@ spec:
   containers:
   - name: iam-testsuite
     image: $DOCKER_REGISTRY_HOST/indigoiam/iam-robot-testsuite:latest
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 100Mi
     volumeMounts:
     - name: scratch-area
       mountPath: /srv/scratch
