@@ -39,6 +39,8 @@ spec:
           requests:
             cpu: 500m
             memory: 500Mi
+          limits:
+            memory: 500Mi
         env:
         - name: MYSQL_USER
           value: iam

@@ -84,20 +84,23 @@ pipeline {
     
     stage('process output'){
       steps {
-        script {
-          dir("${env.OUTPUT_REPORTS}"){
+      	container('kubectl-runner'){
+      	  sh "cp -rv ${env.OUTPUT_REPORTS} ."
+		  dir("reports"){
             archiveArtifacts "**"
           }
-        
-          step([$class: 'RobotPublisher',
-            disableArchiveOutput: false,
-            logFileName: 'log.html',
-            otherFiles: '*.png',
-            outputFileName: 'output.xml',
-            outputPath: "${env.OUTPUT_REPORTS}",
-            passThreshold: 100,
-            reportFileName: 'report.html',
-            unstableThreshold: 90]);
+          
+          script {
+            step([$class: 'RobotPublisher',
+              disableArchiveOutput: false,
+              logFileName: 'log.html',
+              otherFiles: '*.png',
+              outputFileName: 'output.xml',
+              outputPath: "reports",
+              passThreshold: 100,
+              reportFileName: 'report.html',
+              unstableThreshold: 90]);
+          }
         }
       }
     }

@@ -42,6 +42,8 @@ spec:
       requests:
         cpu: 1000m
         memory: 100Mi
+      limits:
+        memory: 100Mi
     volumeMounts:
     - name: scratch-area
       mountPath: /srv/scratch

@@ -58,6 +58,8 @@ spec:
           requests:
             cpu: 1000m
             memory: 1500Mi
+          limits:
+            memory: 1500Mi
         volumeMounts:
         - name: saml-volume
           mountPath: /srv/indigo-iam/saml-idp/idp/shibboleth-idp/metadata
