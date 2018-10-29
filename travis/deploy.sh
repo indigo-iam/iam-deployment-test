@@ -19,6 +19,9 @@ function tar_reports_and_logs(){
   docker-compose logs --no-color iam >${reports_dir}/iam.log
   docker-compose logs --no-color iam-be >${reports_dir}/iam-be.log
   docker-compose logs --no-color client >${reports_dir}/client.log
+  docker-compose logs --no-color selenium-hub >${reports_dir}/selenium-hub.log
+  docker-compose logs --no-color selenium-chrome >${reports_dir}/selenium-chrome.log
+  docker-compose logs --no-color selenium-firefox >${reports_dir}/selenium-firefox.log
   docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
   pushd ${work_dir} 
   tar cvzf reports.tar.gz reports
