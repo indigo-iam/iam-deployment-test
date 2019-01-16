@@ -4,6 +4,8 @@ set -e
 
 IAM_REPO=${IAM_REPO:-https://github.com/indigo-iam/iam.git}
 IAM_REPO_BRANCH=${IAM_REPO_BRANCH:-develop}
+IAM_TESTSUITE_REPO=${IAM_TESTSUITE_REPO:-https://github.com/indigo-iam/iam-robot-testsuite.git}
+IAM_TESTSUITE_REPO_BRANCH=${IAM_TESTSUITE_REPO_BRANCH:-develop}
 TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG:-indigo-iam/iam-deployment-test}
 TRAVIS_JOB_ID=${TRAVIS_JOB_ID:-0}
 TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER:-0}
@@ -66,18 +68,24 @@ pushd ${work_dir}
 git clone ${IAM_REPO} iam
 cd iam
 git checkout ${IAM_REPO_BRANCH}
-cd compose/deployment-test
 docker-compose up -d 
 
-set +e
-docker-compose logs -f iam-robot-testsuite
+DOCKER_NET_NAME=iam_default sh docker/selenium-grid/selenium_grid.sh start
 
-ts_ec=$(docker inspect deploymenttest_iam-robot-testsuite_1 -f '{{.State.ExitCode}}')
+docker run -d --name iam-robot-testsuite --net iam_default -e TESTSUITE_BRANCH=${IAM_TESTSUITE_REPO_B${IAM_TESTSUITE_REPO_BRANCH} -e TESTSUITE_OPTS=--exclude=test-client -e IAM_BASE_URL=https://iam.local.io -e TIMEOUT=10 -e IMPLICIT_WAIT=1 -e REMOTE_URL=http://selenium-hub:4444/wd/hub  indigoiam/iam-robot-testsuite:latest
+
+set +e
+docker logs -f iam-robot-testsuite
+
+ts_ec=$(docker inspect iam-robot-testsuite -f '{{.State.ExitCode}}')
 
 tar_reports_and_logs
 set -e
 upload_reports_and_logs
+docker rm iam-robot-testsuite
+DOCKER_NET_NAME=iam_default sh docker/selenium-grid/selenium_grid.sh stop
 docker-compose stop
+docker-compose down
 
 if [ ${ts_ec} != 0 ]; then
   exit 1
