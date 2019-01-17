@@ -10,7 +10,7 @@ TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG:-indigo-iam/iam-deployment-test}
 TRAVIS_JOB_ID=${TRAVIS_JOB_ID:-0}
 TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER:-0}
 REPORT_REPO_URL=${REPORT_REPO_URL:-}
-DOCKER_NET_NAME=${DOCKER_NET_NAME:-iam_default}
+NETWORK_NAME=${NETWORK_NAME:-iam_default}
 
 work_dir=$(mktemp -d -t 'iam_dt_XXXX')
 reports_dir=${work_dir}/reports
@@ -80,7 +80,8 @@ git clone ${IAM_TESTSUITE_REPO}
 pushd iam-robot-testsuite
 git checkout ${IAM_TESTSUITE_REPO_BRANCH}
 
-DOCKER_NET_NAME=${DOCKER_NET_NAME} sh docker/selenium-grid/selenium_grid.sh start
+export DOCKER_NET_NAME=${NETWORK_NAME}
+sh ./docker/selenium-grid/selenium_grid.sh start
 
 pushd docker
 sh build-image.sh
@@ -90,7 +91,7 @@ popd
 popd
 # back to iam-deployment-test
 
-docker run -d --name iam-robot-testsuite --net ${DOCKER_NET_NAME} -e TESTSUITE_BRANCH=${IAM_TESTSUITE_REPO_B${IAM_TESTSUITE_REPO_BRANCH} -e TESTSUITE_OPTS=--exclude=test-client -e IAM_BASE_URL=https://iam.local.io -e TIMEOUT=10 -e IMPLICIT_WAIT=1 -e REMOTE_URL=http://selenium-hub:4444/wd/hub  indigoiam/iam-robot-testsuite:latest
+docker run -d --name iam-robot-testsuite --net ${NETWORK_NAME} -e TESTSUITE_BRANCH=${IAM_TESTSUITE_REPO_B${IAM_TESTSUITE_REPO_BRANCH} -e TESTSUITE_OPTS=--exclude=test-client -e IAM_BASE_URL=https://iam.local.io -e TIMEOUT=10 -e IMPLICIT_WAIT=1 -e REMOTE_URL=http://selenium-hub:4444/wd/hub  indigoiam/iam-robot-testsuite:latest
 
 set +e
 docker logs -f iam-robot-testsuite
@@ -105,7 +106,7 @@ docker rm iam-robot-testsuite
 pushd ${workdir}
 pushd iam-robot-testsuite
 
-DOCKER_NET_NAME=${DOCKER_NET_NAME} sh docker/selenium-grid/selenium_grid.sh start
+sh ./docker/selenium-grid/selenium_grid.sh stop
 
 popd
 pushd iam
