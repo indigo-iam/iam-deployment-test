@@ -4,6 +4,7 @@ services:
 dist: trusty
 env:
   global:
+  - DOCKER_COMPOSE_VERSION=1.23.2
   - SERVICE_WAIT_TIMEOUT="120"
   - IAM_TESTSUITE_TIMEOUT="10"
   - IAM_REPO_BRANCH="fix/263"
