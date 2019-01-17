@@ -68,6 +68,8 @@ pushd ${work_dir}
 git clone ${IAM_REPO} iam
 cd iam
 git checkout ${IAM_REPO_BRANCH}
+docker-compose down
+docker-compose build
 docker-compose up -d 
 
 DOCKER_NET_NAME=iam_default sh docker/selenium-grid/selenium_grid.sh start
