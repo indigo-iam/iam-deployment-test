@@ -80,6 +80,8 @@ git clone ${IAM_TESTSUITE_REPO}
 pushd iam-robot-testsuite
 git checkout ${IAM_TESTSUITE_REPO_BRANCH}
 
+DOCKER_NET_NAME=${DOCKER_NET_NAME} sh docker/selenium-grid/selenium_grid.sh start
+
 pushd docker
 sh build-image.sh
 popd
@@ -87,8 +89,6 @@ popd
 # back to workdir
 popd
 # back to iam-deployment-test
-
-DOCKER_NET_NAME=${DOCKER_NET_NAME} sh docker/selenium-grid/selenium_grid.sh start
 
 docker run -d --name iam-robot-testsuite --net ${DOCKER_NET_NAME} -e TESTSUITE_BRANCH=${IAM_TESTSUITE_REPO_B${IAM_TESTSUITE_REPO_BRANCH} -e TESTSUITE_OPTS=--exclude=test-client -e IAM_BASE_URL=https://iam.local.io -e TIMEOUT=10 -e IMPLICIT_WAIT=1 -e REMOTE_URL=http://selenium-hub:4444/wd/hub  indigoiam/iam-robot-testsuite:latest
 
@@ -102,9 +102,12 @@ set -e
 upload_reports_and_logs
 docker rm iam-robot-testsuite
 
-DOCKER_NET_NAME=${DOCKER_NET_NAME} sh docker/selenium-grid/selenium_grid.sh stop
+pushd ${workdir}
+pushd iam-robot-testsuite
 
-pushd ${work_dir}
+DOCKER_NET_NAME=${DOCKER_NET_NAME} sh docker/selenium-grid/selenium_grid.sh start
+
+popd
 pushd iam
 docker-compose stop
 docker-compose down
