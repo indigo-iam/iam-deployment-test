@@ -69,6 +69,7 @@ pushd ${work_dir}
 git clone ${IAM_REPO} iam
 pushd iam
 git checkout ${IAM_REPO_BRANCH}
+mvn clean package -DskipTests
 docker-compose down
 docker-compose build
 docker-compose up 
