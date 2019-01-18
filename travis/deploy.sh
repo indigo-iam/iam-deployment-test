@@ -81,7 +81,30 @@ pushd iam-robot-testsuite
 git checkout ${IAM_TESTSUITE_REPO_BRANCH}
 
 export DOCKER_NET_NAME=${NETWORK_NAME}
-sh ./docker/selenium-grid/selenium_grid.sh start
+
+selenium_version=${SELENIUM_VERSION:-"3.8.1"}
+iam_container_name=${IAM_CONTAINER_NAME:-"iam.local.io"}
+
+net_options=""
+node_options=""
+
+if [ ! -z "${DOCKER_NET_NAME}" ]; then
+	net_options="--net ${DOCKER_NET_NAME}"
+        node_options="-e HUB_PORT_4444_TCP_ADDR=selenium-hub -e HUB_PORT_4444_TCP_PORT=4444"
+else
+        node_options="--link selenium-hub:hub"
+fi
+
+echo "Starting Hub..."
+docker run -d -e GRID_TIMEOUT=0 -p "4444:4444" $net_options --name selenium-hub --hostname selenium-hub selenium/hub:${selenium_version}
+
+sleep 5
+
+echo "Starting Chrome node..."
+docker run -d $net_options $node_options --name node-chrome selenium/node-chrome:${selenium_version}
+
+echo "Starting Firefox node..."
+docker run -d $net_options $node_options --name node-firefox selenium/node-firefox:${selenium_version}
 
 pushd docker
 sh build-image.sh
@@ -106,7 +129,11 @@ docker rm iam-robot-testsuite
 pushd ${workdir}
 pushd iam-robot-testsuite
 
-sh ./docker/selenium-grid/selenium_grid.sh stop
+echo "Stopping containers..."
+docker stop selenium-hub node-chrome node-firefox
+
+echo "Deleting containers..."
+docker rm selenium-hub node-chrome node-firefox
 
 popd
 pushd iam
