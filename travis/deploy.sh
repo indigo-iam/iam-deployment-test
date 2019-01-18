@@ -25,8 +25,8 @@ function tar_reports_and_logs(){
   docker-compose logs --no-color selenium-hub >${reports_dir}/selenium-hub.log
   docker-compose logs --no-color selenium-chrome >${reports_dir}/selenium-chrome.log
   docker-compose logs --no-color selenium-firefox >${reports_dir}/selenium-firefox.log
-  docker cp deploymenttest_iam-robot-testsuite_1:/home/tester/iam-robot-testsuite/reports ${reports_dir}
-  pushd ${work_dir} 
+  docker cp iam-robot-testsuite:/home/tester/iam-robot-testsuite/reports ${reports_dir}
+  pushd ${work_dir}
   tar cvzf reports.tar.gz reports
   popd
 }
@@ -49,7 +49,7 @@ function upload_reports_and_logs() {
   fi
   popd
 }
-  
+
 function cleanup(){
   retcod=$?
   if [ $retcod != 0 ]; then
@@ -72,7 +72,7 @@ git checkout ${IAM_REPO_BRANCH}
 mvn clean package -DskipTests
 docker-compose down
 docker-compose build
-docker-compose up -d 
+docker-compose up -d
 popd
 popd
 
