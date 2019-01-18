@@ -114,7 +114,7 @@ popd
 popd
 # back to iam-deployment-test
 
-docker run -d --name iam-robot-testsuite --net ${NETWORK_NAME} -e TESTSUITE_BRANCH=${IAM_TESTSUITE_REPO_B${IAM_TESTSUITE_REPO_BRANCH} -e TESTSUITE_OPTS=--exclude=test-client -e IAM_BASE_URL=https://iam.local.io -e TIMEOUT=10 -e IMPLICIT_WAIT=1 -e REMOTE_URL=http://selenium-hub:4444/wd/hub  indigoiam/iam-robot-testsuite:latest
+docker run -d --name iam-robot-testsuite --net ${NETWORK_NAME} -e TESTSUITE_BRANCH=${IAM_TESTSUITE_REPO_BRANCH} -e TESTSUITE_OPTS=--exclude=test-client -e IAM_BASE_URL=https://iam.local.io -e TIMEOUT=10 -e IMPLICIT_WAIT=1 -e REMOTE_URL=http://selenium-hub:4444/wd/hub  indigoiam/iam-robot-testsuite:latest
 
 set +e
 docker logs -f iam-robot-testsuite
@@ -126,7 +126,7 @@ set -e
 upload_reports_and_logs
 docker rm iam-robot-testsuite
 
-pushd ${workdir}
+pushd ${work_dir}
 pushd iam-robot-testsuite
 
 echo "Stopping containers..."
