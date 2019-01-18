@@ -72,7 +72,7 @@ git checkout ${IAM_REPO_BRANCH}
 mvn clean package -DskipTests
 docker-compose down
 docker-compose build
-docker-compose up 
+docker-compose up -d 
 popd
 popd
 
