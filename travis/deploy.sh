@@ -5,7 +5,7 @@ set -e
 IAM_REPO=${IAM_REPO:-https://github.com/indigo-iam/iam.git}
 IAM_REPO_BRANCH=${IAM_REPO_BRANCH:-develop}
 IAM_TESTSUITE_REPO=${IAM_TESTSUITE_REPO:-https://github.com/indigo-iam/iam-robot-testsuite.git}
-IAM_TESTSUITE_REPO_BRANCH=${IAM_TESTSUITE_REPO_BRANCH:-develop}
+IAM_TESTSUITE_REPO_BRANCH=${IAM_TESTSUITE_REPO_BRANCH:-fix/250}
 TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG:-indigo-iam/iam-deployment-test}
 TRAVIS_JOB_ID=${TRAVIS_JOB_ID:-0}
 TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER:-0}
@@ -122,24 +122,20 @@ docker logs -f iam-robot-testsuite
 
 ts_ec=$(docker inspect iam-robot-testsuite -f '{{.State.ExitCode}}')
 
+pushd ${work_dir}
+pushd iam
 tar_reports_and_logs
 set -e
 upload_reports_and_logs
-docker rm iam-robot-testsuite
-
-pushd ${work_dir}
-pushd iam-robot-testsuite
 
 echo "Stopping containers..."
 docker stop selenium-hub node-chrome node-firefox
+docker-compose stop
 
 echo "Deleting containers..."
-docker rm selenium-hub node-chrome node-firefox
-
-popd
-pushd iam
-docker-compose stop
+docker rm selenium-hub node-chrome node-firefox iam-robot-testsuite
 docker-compose down
+
 popd
 popd
 
