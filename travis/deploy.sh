@@ -71,7 +71,7 @@ pushd iam
 git checkout ${IAM_REPO_BRANCH}
 docker-compose down
 docker-compose build
-docker-compose up -d 
+docker-compose up 
 popd
 popd
 
